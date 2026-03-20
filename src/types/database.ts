@@ -1,0 +1,97 @@
+export type Database = {
+  public: {
+    Tables: {
+      categories: {
+        Row: {
+          id: string
+          name: string
+          icon: string
+          color: string
+          type: 'income' | 'expense' | 'both'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          icon?: string
+          color?: string
+          type?: 'income' | 'expense' | 'both'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          icon?: string
+          color?: string
+          type?: 'income' | 'expense' | 'both'
+          created_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          id: string
+          description: string
+          amount: number
+          type: 'income' | 'expense'
+          category_id: string | null
+          date: string
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          description: string
+          amount: number
+          type: 'income' | 'expense'
+          category_id?: string | null
+          date?: string
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          description?: string
+          amount?: number
+          type?: 'income' | 'expense'
+          category_id?: string | null
+          date?: string
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      budgets: {
+        Row: {
+          id: string
+          category_id: string
+          amount: number
+          month: number
+          year: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          category_id: string
+          amount: number
+          month: number
+          year: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          category_id?: string
+          amount?: number
+          month?: number
+          year?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
+  }
+}
