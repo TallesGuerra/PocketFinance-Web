@@ -29,7 +29,7 @@ export default function HomePage() {
       {/* Header */}
       <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 px-4 pt-12 pb-6 text-white">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold">💰 Finanças na Mão</h1>
+          <h1 className="text-xl font-bold">💰 PocketFinance</h1>
           <button
             onClick={() => setIsModalOpen(true)}
             className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl hover:bg-white/30 transition-colors"

@@ -4,13 +4,13 @@ import { ServiceWorkerRegister } from './sw-register'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Finanças na Mão',
-  description: 'Controlo de finanças pessoais',
+  title: 'PocketFinance Web',
+  description: 'Personal finance tracker - web version of PocketFinance Android',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Finanças na Mão',
+    title: 'PocketFinance',
   },
   icons: {
     apple: '/icons/apple-touch-icon.png',

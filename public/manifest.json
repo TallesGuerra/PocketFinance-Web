@@ -1,7 +1,7 @@
 {
-  "name": "Finanças na Mão",
-  "short_name": "Finanças",
-  "description": "Controlo de finanças pessoais",
+  "name": "PocketFinance Web",
+  "short_name": "PocketFinance",
+  "description": "Personal finance tracker - web version of PocketFinance Android",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f9fafb",
