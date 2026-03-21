@@ -69,8 +69,8 @@ export default function HomePage() {
       </div>
 
       {/* Content */}
-      <div className="px-4 py-4 lg:px-6 lg:max-w-3xl">
-        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-3">Histórico</h2>
+      <div className="px-4 py-4 space-y-3">
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Histórico</h2>
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
