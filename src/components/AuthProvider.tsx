@@ -14,17 +14,7 @@ export function useAuthContext() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const {
-    status,
-    hasBiometric,
-    biometricSupported,
-    setupPin,
-    loginWithPin,
-    registerBiometric,
-    loginWithBiometric,
-    logout,
-    resetAuth,
-  } = useAuth()
+  const { status, supported, setup, login, logout, resetAuth } = useAuth()
 
   if (status === 'loading') {
     return (
@@ -38,12 +28,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return (
       <LoginScreen
         mode={status}
-        hasBiometric={hasBiometric}
-        biometricSupported={biometricSupported}
-        onSetupPin={setupPin}
-        onLoginWithPin={loginWithPin}
-        onRegisterBiometric={registerBiometric}
-        onLoginWithBiometric={loginWithBiometric}
+        supported={supported}
+        onSetup={setup}
+        onLogin={login}
       />
     )
   }
