@@ -1,30 +1,86 @@
 @import "tailwindcss";
 
+/* Enable class-based dark mode for Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+
+/* ─── Light mode tokens ─── */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --bg:          #f0f4f8;
+  --bg-card:     #ffffff;
+  --bg-surface:  #f8fafc;
+  --text-1:      #0f172a;
+  --text-2:      #475569;
+  --text-3:      #94a3b8;
+  --border:      #e2e8f0;
+  --border-soft: #f1f5f9;
+  --shadow:      0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:   0 4px 16px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+}
+
+/* ─── Dark mode tokens ─── */
+.dark {
+  --bg:          #080d14;
+  --bg-card:     #111827;
+  --bg-surface:  #1a2235;
+  --text-1:      #f1f5f9;
+  --text-2:      #94a3b8;
+  --text-3:      #475569;
+  --border:      rgba(255,255,255,0.07);
+  --border-soft: rgba(255,255,255,0.04);
+  --shadow:      0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
+  --shadow-md:   0 4px 24px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.4);
 }
 
 body {
-  background: linear-gradient(160deg, #e0f2fe 0%, #f8fafc 35%, #fdf4ff 100%);
+  background-color: var(--bg);
+  color: var(--text-1);
+  transition: background-color .25s, color .25s;
+}
+
+/* Light mode: subtle mesh gradient */
+body:not(.dark body) {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(16,185,129,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(99,102,241,.10) 0%, transparent 60%);
   background-attachment: fixed;
-  color: var(--foreground);
 }
 
-/* Safe area for iPhone bottom nav */
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
+/* Dark mode: deep gradient */
+.dark body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(16,185,129,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(99,102,241,.06) 0%, transparent 60%);
+  background-attachment: fixed;
 }
 
-/* Smooth scroll */
+/* ─── Utility classes using tokens ─── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* ─── Misc ─── */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Remove number input spinners */
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* Smooth theme transition for interactive elements */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: .15s;
+  transition-timing-function: ease;
+}
+/* Override for elements that shouldn't animate */
+button, a, input, select, textarea {
+  transition-duration: .1s;
 }

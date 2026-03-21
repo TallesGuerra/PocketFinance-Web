@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { Budget, Category } from '@/types'
+
+const inputCls = 'w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500'
+const labelCls = 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1'
 import { formatCurrency } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -48,7 +51,7 @@ export function BudgetList({ budgets, categories, month, year, onUpsert, onDelet
   return (
     <>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-semibold text-gray-900">Orçamentos</h2>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Orçamentos</h2>
         <Button size="sm" onClick={() => setIsOpen(true)}>
           <Plus size={16} /> Adicionar
         </Button>
@@ -62,28 +65,28 @@ export function BudgetList({ budgets, categories, month, year, onUpsert, onDelet
             const percentage = Math.min((b.spent / b.amount) * 100, 100)
             const isOver = b.spent > b.amount
             return (
-              <div key={b.id} className="bg-white rounded-2xl p-4 border border-gray-100">
+              <div key={b.id} className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{b.category?.icon}</span>
-                    <span className="text-sm font-medium text-gray-900">{b.category?.name}</span>
+                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{b.category?.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-sm font-semibold ${isOver ? 'text-red-500' : 'text-gray-700'}`}>
+                    <span className={`text-sm font-semibold ${isOver ? 'text-red-500' : 'text-slate-700 dark:text-slate-300'}`}>
                       {formatCurrency(b.spent)} / {formatCurrency(b.amount)}
                     </span>
-                    <button onClick={() => onDelete(b.id)} className="p-1 hover:bg-red-50 rounded-lg">
-                      <Trash2 size={14} className="text-gray-300 hover:text-red-400" />
+                    <button onClick={() => onDelete(b.id)} className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
+                      <Trash2 size={14} className="text-slate-300 dark:text-slate-700 hover:text-red-400" />
                     </button>
                   </div>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${isOver ? 'bg-red-500' : percentage > 80 ? 'bg-amber-400' : 'bg-emerald-500'}`}
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                   {isOver ? `${formatCurrency(b.spent - b.amount)} acima do limite` : `${formatCurrency(b.amount - b.spent)} restantes`}
                 </p>
               </div>
@@ -95,12 +98,8 @@ export function BudgetList({ budgets, categories, month, year, onUpsert, onDelet
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Novo Orçamento">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
-            <select
-              value={categoryId}
-              onChange={e => setCategoryId(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-            >
+            <label className={labelCls}>Categoria</label>
+            <select value={categoryId} onChange={e => setCategoryId(e.target.value)} className={inputCls}>
               <option value="">Seleccionar categoria</option>
               {availableCategories.map(c => (
                 <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
@@ -108,7 +107,7 @@ export function BudgetList({ budgets, categories, month, year, onUpsert, onDelet
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Limite mensal (€)</label>
+            <label className={labelCls}>Limite mensal (€)</label>
             <input
               type="number"
               value={amount}
@@ -116,7 +115,7 @@ export function BudgetList({ budgets, categories, month, year, onUpsert, onDelet
               placeholder="0.00"
               step="0.01"
               min="0.01"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className={inputCls}
             />
           </div>
           <div className="flex gap-3">

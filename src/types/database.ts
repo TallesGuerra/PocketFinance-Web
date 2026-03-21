@@ -76,6 +76,51 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_transactions: {
+        Row: {
+          id: string
+          description: string
+          amount: number
+          type: 'income' | 'expense'
+          category_id: string | null
+          recurrence: 'monthly' | 'weekly' | 'yearly'
+          day_of_month: number
+          notes: string | null
+          active: boolean
+          last_generated_month: number | null
+          last_generated_year: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          description: string
+          amount: number
+          type: 'income' | 'expense'
+          category_id?: string | null
+          recurrence?: 'monthly' | 'weekly' | 'yearly'
+          day_of_month?: number
+          notes?: string | null
+          active?: boolean
+          last_generated_month?: number | null
+          last_generated_year?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          description?: string
+          amount?: number
+          type?: 'income' | 'expense'
+          category_id?: string | null
+          recurrence?: 'monthly' | 'weekly' | 'yearly'
+          day_of_month?: number
+          notes?: string | null
+          active?: boolean
+          last_generated_month?: number | null
+          last_generated_year?: number | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           id: string

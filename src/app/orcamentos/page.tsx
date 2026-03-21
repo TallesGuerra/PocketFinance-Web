@@ -36,7 +36,7 @@ export default function OrcamentosPage() {
 
   return (
     <div>
-      <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 px-4 pt-12 pb-6 text-white">
+      <div className="bg-gradient-to-br from-emerald-600 to-teal-500 px-4 pt-12 pb-6 text-white">
         <h1 className="text-xl font-bold mb-4">Orçamentos</h1>
         <MonthPicker month={month} year={year} onChange={(m, y) => { setMonth(m); setYear(y) }} />
 

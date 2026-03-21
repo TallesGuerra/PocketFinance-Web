@@ -26,12 +26,12 @@ function getInstallmentLabel(t: Transaction): string | null {
   return `${months} parcelas`
 }
 
-function getDueDateStatus(t: Transaction): 'overdue' | 'today' | 'upcoming' | null {
+function getDueDateStatus(t: Transaction): 'overdue' | 'today' | null {
   if (t.type !== 'expense' || t.paid) return null
   const today = new Date().toISOString().split('T')[0]
   if (t.date < today) return 'overdue'
   if (t.date === today) return 'today'
-  return 'upcoming'
+  return null
 }
 
 export function TransactionList({ transactions, onDelete, onTogglePaid }: TransactionListProps) {
@@ -62,7 +62,6 @@ export function TransactionList({ transactions, onDelete, onTogglePaid }: Transa
     return <EmptyState icon="💸" title="Sem transações" description="Adiciona a tua primeira transação" />
   }
 
-  // Group by date
   const grouped = transactions.reduce((acc, t) => {
     const key = t.date
     if (!acc[key]) acc[key] = []
@@ -74,7 +73,9 @@ export function TransactionList({ transactions, onDelete, onTogglePaid }: Transa
     <div className="space-y-4">
       {Object.entries(grouped).map(([date, items]) => (
         <div key={date}>
-          <p className="text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">{formatDate(date)}</p>
+          <p className="text-xs font-semibold text-slate-400 dark:text-slate-600 mb-2 uppercase tracking-wider">
+            {formatDate(date)}
+          </p>
           <div className="space-y-2">
             {items.map(t => {
               const dueDateStatus = getDueDateStatus(t)
@@ -83,11 +84,16 @@ export function TransactionList({ transactions, onDelete, onTogglePaid }: Transa
               return (
                 <div
                   key={t.id}
-                  className={`bg-white rounded-2xl p-3 flex items-center gap-3 shadow-sm border transition-opacity ${
-                    t.paid ? 'opacity-60 border-gray-50' : 'border-gray-50'
-                  } ${dueDateStatus === 'overdue' ? 'border-l-4 border-l-red-400' : ''} ${
-                    dueDateStatus === 'today' ? 'border-l-4 border-l-amber-400' : ''
+                  className={`bg-white dark:bg-slate-900 rounded-2xl p-3 flex items-center gap-3 border transition-opacity ${
+                    t.paid
+                      ? 'opacity-60 border-slate-100 dark:border-slate-800'
+                      : dueDateStatus === 'overdue'
+                      ? 'border-l-4 border-l-red-400 border-slate-100 dark:border-slate-800'
+                      : dueDateStatus === 'today'
+                      ? 'border-l-4 border-l-amber-400 border-slate-100 dark:border-slate-800'
+                      : 'border-slate-100 dark:border-slate-800'
                   }`}
+                  style={{ boxShadow: 'var(--shadow)' }}
                 >
                   {/* Paid checkbox — expenses only */}
                   {t.type === 'expense' && onTogglePaid && (
@@ -97,7 +103,7 @@ export function TransactionList({ transactions, onDelete, onTogglePaid }: Transa
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                         t.paid
                           ? 'bg-emerald-500 border-emerald-500'
-                          : 'border-gray-300 hover:border-emerald-400'
+                          : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400'
                       }`}
                     >
                       {t.paid && <Check size={12} className="text-white" strokeWidth={3} />}
@@ -112,24 +118,30 @@ export function TransactionList({ transactions, onDelete, onTogglePaid }: Transa
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium truncate ${t.paid ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+                    <p className={`text-sm font-medium truncate ${
+                      t.paid
+                        ? 'line-through text-slate-400 dark:text-slate-600'
+                        : 'text-slate-900 dark:text-slate-100'
+                    }`}>
                       {t.description}
                     </p>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="text-xs text-gray-400">{t.category?.name ?? 'Sem categoria'}</p>
+                    <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                      <p className="text-xs text-slate-400 dark:text-slate-500">
+                        {t.category?.name ?? 'Sem categoria'}
+                      </p>
                       {installmentLabel && (
-                        <span className="text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full">
+                        <span className="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 px-1.5 py-0.5 rounded-full">
                           {installmentLabel}
                         </span>
                       )}
                       {dueDateStatus === 'overdue' && (
-                        <span className="text-xs bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full">Vencida</span>
+                        <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-500 px-1.5 py-0.5 rounded-full">Vencida</span>
                       )}
                       {dueDateStatus === 'today' && (
-                        <span className="text-xs bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full">Vence hoje</span>
+                        <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-full">Vence hoje</span>
                       )}
                       {t.paid && t.paid_date && (
-                        <span className="text-xs bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded-full">
+                        <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded-full">
                           Pago em {formatDate(t.paid_date)}
                         </span>
                       )}
@@ -137,7 +149,13 @@ export function TransactionList({ transactions, onDelete, onTogglePaid }: Transa
                   </div>
 
                   <div className="text-right flex-shrink-0">
-                    <p className={`text-sm font-semibold ${t.type === 'income' ? 'text-emerald-600' : t.paid ? 'text-gray-400' : 'text-red-500'}`}>
+                    <p className={`text-sm font-semibold ${
+                      t.type === 'income'
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : t.paid
+                        ? 'text-slate-400 dark:text-slate-600'
+                        : 'text-red-500'
+                    }`}>
                       {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                     </p>
                   </div>
@@ -145,9 +163,9 @@ export function TransactionList({ transactions, onDelete, onTogglePaid }: Transa
                   <button
                     onClick={() => handleDelete(t.id)}
                     disabled={deletingId === t.id}
-                    className="p-2 rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
+                    className="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
                   >
-                    <Trash2 size={16} className="text-gray-300 hover:text-red-400 transition-colors" />
+                    <Trash2 size={16} className="text-slate-300 dark:text-slate-700 hover:text-red-400 transition-colors" />
                   </button>
                 </div>
               )

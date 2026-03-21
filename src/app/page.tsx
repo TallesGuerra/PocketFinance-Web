@@ -3,9 +3,10 @@
 export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Sun, Moon } from 'lucide-react'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useReminders } from '@/hooks/useReminders'
+import { useTheme } from '@/components/ThemeProvider'
 import { MonthPicker } from '@/components/MonthPicker'
 import { SummaryCards } from '@/components/SummaryCards'
 import { TransactionList } from '@/components/TransactionList'
@@ -19,6 +20,7 @@ export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const { transactions, loading, addTransaction, deleteTransaction, updatePaidStatus } = useTransactions(month, year)
+  const { isDark, setTheme, theme } = useTheme()
   useReminders()
 
   const handleAdd = async (data: Parameters<typeof addTransaction>[0]) => {
@@ -26,18 +28,29 @@ export default function HomePage() {
     setIsModalOpen(false)
   }
 
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark')
+
   return (
     <div>
       {/* Header */}
-      <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 px-4 pt-12 pb-6 text-white">
+      <div className="bg-gradient-to-br from-emerald-600 to-teal-500 px-4 pt-12 pb-6 text-white">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold">💰 PocketFinance</h1>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl hover:bg-white/30 transition-colors"
-          >
-            <Plus size={22} />
-          </button>
+          <h1 className="text-xl font-bold tracking-tight">💰 PocketFinance</h1>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl hover:bg-white/30 transition-colors"
+              title={isDark ? 'Modo claro' : 'Modo escuro'}
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl hover:bg-white/30 transition-colors"
+            >
+              <Plus size={22} />
+            </button>
+          </div>
         </div>
         <MonthPicker month={month} year={year} onChange={(m, y) => { setMonth(m); setYear(y) }} />
         <div className="mt-4">
@@ -47,7 +60,7 @@ export default function HomePage() {
 
       {/* Transaction list */}
       <div className="px-4 py-4">
-        <h2 className="text-base font-semibold text-gray-900 mb-3">Histórico</h2>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-3">Histórico</h2>
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />

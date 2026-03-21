@@ -34,9 +34,9 @@ export default function TransacoesPage() {
 
   return (
     <div>
-      <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 px-4 pt-12 pb-6 text-white">
+      <div className="bg-gradient-to-br from-emerald-600 to-teal-500 px-4 pt-12 pb-6 text-white">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold">Transações</h1>
+          <h1 className="text-xl font-bold tracking-tight">Transações</h1>
           <button
             onClick={() => setIsModalOpen(true)}
             className="bg-white/20 backdrop-blur-sm p-2.5 rounded-xl hover:bg-white/30 transition-colors"
@@ -50,26 +50,26 @@ export default function TransacoesPage() {
       <div className="px-4 py-4 space-y-3">
         {/* Search */}
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Pesquisar transações..."
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
 
         {/* Filter tabs */}
-        <div className="flex rounded-xl overflow-hidden border border-gray-200 bg-white">
+        <div className="flex rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
           {(['all', 'expense', 'income'] as const).map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`flex-1 py-2 text-sm font-medium transition-colors ${
                 filter === f
-                  ? f === 'income' ? 'bg-emerald-500 text-white' : f === 'expense' ? 'bg-red-500 text-white' : 'bg-gray-900 text-white'
-                  : 'text-gray-500 hover:bg-gray-50'
+                  ? f === 'income' ? 'bg-emerald-500 text-white' : f === 'expense' ? 'bg-red-500 text-white' : 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
               {f === 'all' ? 'Todas' : f === 'income' ? 'Receitas' : 'Despesas'}

@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/Button'
 import { useCategories } from '@/hooks/useCategories'
 import { TransactionType } from '@/types'
 
+const inputCls = 'w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400 dark:placeholder:text-slate-600'
+const labelCls = 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1'
+
 interface TransactionFormProps {
   onSubmit: (data: {
     description: string
@@ -70,12 +73,14 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Type toggle */}
-      <div className="flex rounded-xl overflow-hidden border border-gray-200">
+      <div className="flex rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
         <button
           type="button"
           onClick={() => { setType('expense'); setCategoryId(''); setIsInstallment(false) }}
           className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
-            type === 'expense' ? 'bg-red-500 text-white' : 'text-gray-500 hover:bg-gray-50'
+            type === 'expense'
+              ? 'bg-red-500 text-white'
+              : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
         >
           Despesa
@@ -84,7 +89,9 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
           type="button"
           onClick={() => { setType('income'); setCategoryId(''); setIsInstallment(false) }}
           className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
-            type === 'income' ? 'bg-emerald-500 text-white' : 'text-gray-500 hover:bg-gray-50'
+            type === 'income'
+              ? 'bg-emerald-500 text-white'
+              : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
         >
           Receita
@@ -93,21 +100,19 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+        <label className={labelCls}>Descrição</label>
         <input
           type="text"
           value={description}
           onChange={e => setDescription(e.target.value)}
           placeholder="Ex: Almoço, Supermercado..."
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className={inputCls}
         />
       </div>
 
       {/* Amount */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {isInstallment ? 'Valor total (€)' : 'Valor (€)'}
-        </label>
+        <label className={labelCls}>{isInstallment ? 'Valor total (€)' : 'Valor (€)'}</label>
         <input
           type="number"
           value={amount}
@@ -115,51 +120,47 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
           placeholder="0.00"
           step="0.01"
           min="0.01"
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className={inputCls}
         />
       </div>
 
       {/* Category */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+        <label className={labelCls}>Categoria</label>
         <select
           value={categoryId}
           onChange={e => setCategoryId(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+          className={inputCls}
         >
           <option value="">Seleccionar categoria</option>
           {categories.map(c => (
-            <option key={c.id} value={c.id}>
-              {c.icon} {c.name}
-            </option>
+            <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
           ))}
         </select>
       </div>
 
-      {/* Due date (for expenses) or Date (for income) */}
+      {/* Due date */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {type === 'expense' ? 'Data de Vencimento' : 'Data'}
-        </label>
+        <label className={labelCls}>{type === 'expense' ? 'Data de Vencimento' : 'Data'}</label>
         <input
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className={inputCls}
         />
       </div>
 
       {/* Installment toggle — expenses only */}
       {type === 'expense' && (
         <div
-          className="flex items-center justify-between p-3 rounded-xl border border-gray-200 cursor-pointer"
+          className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer"
           onClick={() => setIsInstallment(v => !v)}
         >
           <div>
-            <p className="text-sm font-medium text-gray-700">Compra parcelada</p>
-            <p className="text-xs text-gray-400">Definir parcelas e data de término</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Compra parcelada</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">Definir parcelas e data de término</p>
           </div>
-          <div className={`w-11 h-6 rounded-full relative transition-colors ${isInstallment ? 'bg-emerald-500' : 'bg-gray-200'}`}>
+          <div className={`w-11 h-6 rounded-full relative transition-colors ${isInstallment ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`}>
             <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${isInstallment ? 'translate-x-5' : 'translate-x-0.5'}`} />
           </div>
         </div>
@@ -167,19 +168,19 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
 
       {/* Installment fields */}
       {type === 'expense' && isInstallment && (
-        <div className="space-y-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+        <div className="space-y-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fim do parcelamento</label>
+            <label className={labelCls}>Fim do parcelamento</label>
             <input
               type="date"
               value={installmentEndDate}
               onChange={e => setInstallmentEndDate(e.target.value)}
               min={date}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+              className={inputCls}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Valor por parcela (€)</label>
+            <label className={labelCls}>Valor por parcela (€)</label>
             <input
               type="number"
               value={installmentAmount}
@@ -187,7 +188,7 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
               placeholder="0.00"
               step="0.01"
               min="0.01"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className={inputCls}
             />
           </div>
         </div>
@@ -195,13 +196,13 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
 
       {/* Notes */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Notas (opcional)</label>
+        <label className={labelCls}>Notas (opcional)</label>
         <textarea
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="Observações adicionais..."
           rows={2}
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+          className={`${inputCls} resize-none`}
         />
       </div>
 

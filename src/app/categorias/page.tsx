@@ -47,7 +47,7 @@ export default function CategoriasPage() {
 
   return (
     <div>
-      <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 px-4 pt-12 pb-6 text-white">
+      <div className="bg-gradient-to-br from-emerald-600 to-teal-500 px-4 pt-12 pb-6 text-white">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">Categorias</h1>
           <button
@@ -91,15 +91,15 @@ export default function CategoriasPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-            <div className="flex rounded-xl overflow-hidden border border-gray-200">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipo</label>
+            <div className="flex rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
               {(['income', 'expense', 'both'] as const).map(t => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setType(t)}
                   className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                    type === t ? 'bg-emerald-500 text-white' : 'text-gray-500 hover:bg-gray-50'
+                    type === t ? 'bg-emerald-500 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-800'
                   }`}
                 >
                   {t === 'income' ? 'Receita' : t === 'expense' ? 'Despesa' : 'Ambos'}
@@ -110,19 +110,19 @@ export default function CategoriasPage() {
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Ex: Alimentação"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
 
           {/* Icon picker */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Ícone</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Ícone</label>
             <div className="flex flex-wrap gap-2">
               {ICONS.map(i => (
                 <button
@@ -130,7 +130,7 @@ export default function CategoriasPage() {
                   type="button"
                   onClick={() => setIcon(i)}
                   className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${
-                    icon === i ? 'bg-emerald-100 ring-2 ring-emerald-500' : 'bg-gray-100 hover:bg-gray-200'
+                    icon === i ? 'bg-emerald-100 ring-2 ring-emerald-500' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:bg-slate-700'
                   }`}
                 >
                   {i}
@@ -141,7 +141,7 @@ export default function CategoriasPage() {
 
           {/* Color picker */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Cor</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Cor</label>
             <div className="flex flex-wrap gap-2">
               {COLORS.map(c => (
                 <button
@@ -156,11 +156,11 @@ export default function CategoriasPage() {
           </div>
 
           {/* Preview */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+          <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: `${color}20` }}>
               {icon}
             </div>
-            <span className="text-sm font-medium text-gray-700">{name || 'Nome da categoria'}</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{name || 'Nome da categoria'}</span>
           </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -191,14 +191,14 @@ function CategoryGroup({
   if (categories.length === 0) return null
   return (
     <div>
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">{title}</h2>
+      <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">{title}</h2>
       <div className="space-y-2">
         {categories.map(c => (
-          <div key={c.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 border border-gray-100">
+          <div key={c.id} className="bg-white dark:bg-slate-900 rounded-2xl p-3 flex items-center gap-3 border border-slate-100 dark:border-slate-800">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: `${c.color}20` }}>
               {c.icon}
             </div>
-            <span className="flex-1 text-sm font-medium text-gray-900">{c.name}</span>
+            <span className="flex-1 text-sm font-medium text-slate-900 dark:text-slate-100">{c.name}</span>
             <button
               onClick={() => onDelete(c.id)}
               className="p-2 rounded-xl hover:bg-red-50 transition-colors"

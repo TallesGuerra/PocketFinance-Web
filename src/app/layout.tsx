@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { BottomNav } from '@/components/BottomNav'
 import { ServiceWorkerRegister } from './sw-register'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -27,13 +28,23 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt">
+    <html lang="pt" suppressHydrationWarning>
+      <head>
+        {/* Prevent flash of wrong theme */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('theme');var d=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(d)document.documentElement.classList.add('dark')})()`,
+          }}
+        />
+      </head>
       <body className="min-h-screen font-sans antialiased">
-        <ServiceWorkerRegister />
-        <main className="max-w-md mx-auto min-h-screen pb-24">
-          {children}
-        </main>
-        <BottomNav />
+        <ThemeProvider>
+          <ServiceWorkerRegister />
+          <main className="max-w-md mx-auto min-h-screen pb-24">
+            {children}
+          </main>
+          <BottomNav />
+        </ThemeProvider>
       </body>
     </html>
   )

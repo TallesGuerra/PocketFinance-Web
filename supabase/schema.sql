@@ -41,6 +41,22 @@ ALTER TABLE transactions ADD COLUMN IF NOT EXISTS installment_amount DECIMAL(12,
 ALTER TABLE transactions ADD COLUMN IF NOT EXISTS paid BOOLEAN DEFAULT FALSE;
 ALTER TABLE transactions ADD COLUMN IF NOT EXISTS paid_date DATE;
 
+-- Recurring transactions table
+CREATE TABLE IF NOT EXISTS recurring_transactions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  description TEXT NOT NULL,
+  amount DECIMAL(12, 2) NOT NULL CHECK (amount > 0),
+  type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
+  category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
+  recurrence TEXT NOT NULL CHECK (recurrence IN ('monthly', 'weekly', 'yearly')) DEFAULT 'monthly',
+  day_of_month INTEGER NOT NULL CHECK (day_of_month BETWEEN 1 AND 31) DEFAULT 1,
+  notes TEXT,
+  active BOOLEAN DEFAULT TRUE,
+  last_generated_month INTEGER,
+  last_generated_year INTEGER,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date DESC);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
