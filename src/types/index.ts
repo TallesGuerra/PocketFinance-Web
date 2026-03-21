@@ -16,8 +16,13 @@ export interface Transaction {
   type: TransactionType
   category_id: string
   category?: Category
-  date: string
+  date: string            // data de vencimento for expenses
   notes?: string
+  is_installment?: boolean
+  installment_end_date?: string | null
+  installment_amount?: number | null
+  paid?: boolean
+  paid_date?: string | null
   created_at: string
 }
 

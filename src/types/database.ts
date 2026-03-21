@@ -37,6 +37,11 @@ export type Database = {
           category_id: string | null
           date: string
           notes: string | null
+          is_installment: boolean | null
+          installment_end_date: string | null
+          installment_amount: number | null
+          paid: boolean | null
+          paid_date: string | null
           created_at: string
         }
         Insert: {
@@ -47,6 +52,11 @@ export type Database = {
           category_id?: string | null
           date?: string
           notes?: string | null
+          is_installment?: boolean | null
+          installment_end_date?: string | null
+          installment_amount?: number | null
+          paid?: boolean | null
+          paid_date?: string | null
           created_at?: string
         }
         Update: {
@@ -57,6 +67,11 @@ export type Database = {
           category_id?: string | null
           date?: string
           notes?: string | null
+          is_installment?: boolean | null
+          installment_end_date?: string | null
+          installment_amount?: number | null
+          paid?: boolean | null
+          paid_date?: string | null
           created_at?: string
         }
         Relationships: []

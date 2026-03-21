@@ -18,7 +18,7 @@ export default function TransacoesPage() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all')
 
-  const { transactions, loading, addTransaction, deleteTransaction } = useTransactions(month, year)
+  const { transactions, loading, addTransaction, deleteTransaction, updatePaidStatus } = useTransactions(month, year)
 
   const filtered = transactions.filter(t => {
     const matchesSearch = t.description.toLowerCase().includes(search.toLowerCase()) ||
@@ -82,7 +82,7 @@ export default function TransacoesPage() {
             <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <TransactionList transactions={filtered} onDelete={deleteTransaction} />
+          <TransactionList transactions={filtered} onDelete={deleteTransaction} onTogglePaid={updatePaidStatus} />
         )}
       </div>
 

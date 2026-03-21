@@ -13,6 +13,9 @@ interface TransactionFormProps {
     category_id: string
     date: string
     notes?: string
+    is_installment?: boolean
+    installment_end_date?: string | null
+    installment_amount?: number | null
   }) => Promise<void>
   onCancel: () => void
 }
@@ -25,6 +28,9 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
   const [categoryId, setCategoryId] = useState('')
   const [date, setDate] = useState(today)
   const [notes, setNotes] = useState('')
+  const [isInstallment, setIsInstallment] = useState(false)
+  const [installmentEndDate, setInstallmentEndDate] = useState('')
+  const [installmentAmount, setInstallmentAmount] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -35,6 +41,8 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
     if (!description.trim()) return setError('Descrição é obrigatória')
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) return setError('Valor inválido')
     if (!categoryId) return setError('Selecciona uma categoria')
+    if (isInstallment && !installmentEndDate) return setError('Define a data de fim do parcelamento')
+    if (isInstallment && installmentEndDate <= date) return setError('Fim do parcelamento deve ser após a data de vencimento')
 
     setError('')
     setLoading(true)
@@ -46,6 +54,11 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
         category_id: categoryId,
         date,
         notes: notes.trim() || undefined,
+        is_installment: type === 'expense' ? isInstallment : false,
+        installment_end_date: (type === 'expense' && isInstallment) ? installmentEndDate : null,
+        installment_amount: (type === 'expense' && isInstallment && installmentAmount)
+          ? Number(installmentAmount)
+          : null,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao guardar')
@@ -60,7 +73,7 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
       <div className="flex rounded-xl overflow-hidden border border-gray-200">
         <button
           type="button"
-          onClick={() => { setType('expense'); setCategoryId('') }}
+          onClick={() => { setType('expense'); setCategoryId(''); setIsInstallment(false) }}
           className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
             type === 'expense' ? 'bg-red-500 text-white' : 'text-gray-500 hover:bg-gray-50'
           }`}
@@ -69,7 +82,7 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
         </button>
         <button
           type="button"
-          onClick={() => { setType('income'); setCategoryId('') }}
+          onClick={() => { setType('income'); setCategoryId(''); setIsInstallment(false) }}
           className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
             type === 'income' ? 'bg-emerald-500 text-white' : 'text-gray-500 hover:bg-gray-50'
           }`}
@@ -92,7 +105,9 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
 
       {/* Amount */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Valor (€)</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {isInstallment ? 'Valor total (€)' : 'Valor (€)'}
+        </label>
         <input
           type="number"
           value={amount}
@@ -121,9 +136,11 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
         </select>
       </div>
 
-      {/* Date */}
+      {/* Due date (for expenses) or Date (for income) */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {type === 'expense' ? 'Data de Vencimento' : 'Data'}
+        </label>
         <input
           type="date"
           value={date}
@@ -131,6 +148,50 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
           className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
+
+      {/* Installment toggle — expenses only */}
+      {type === 'expense' && (
+        <div
+          className="flex items-center justify-between p-3 rounded-xl border border-gray-200 cursor-pointer"
+          onClick={() => setIsInstallment(v => !v)}
+        >
+          <div>
+            <p className="text-sm font-medium text-gray-700">Compra parcelada</p>
+            <p className="text-xs text-gray-400">Definir parcelas e data de término</p>
+          </div>
+          <div className={`w-11 h-6 rounded-full relative transition-colors ${isInstallment ? 'bg-emerald-500' : 'bg-gray-200'}`}>
+            <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${isInstallment ? 'translate-x-5' : 'translate-x-0.5'}`} />
+          </div>
+        </div>
+      )}
+
+      {/* Installment fields */}
+      {type === 'expense' && isInstallment && (
+        <div className="space-y-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fim do parcelamento</label>
+            <input
+              type="date"
+              value={installmentEndDate}
+              onChange={e => setInstallmentEndDate(e.target.value)}
+              min={date}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Valor por parcela (€)</label>
+            <input
+              type="number"
+              value={installmentAmount}
+              onChange={e => setInstallmentAmount(e.target.value)}
+              placeholder="0.00"
+              step="0.01"
+              min="0.01"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Notes */}
       <div>

@@ -34,6 +34,13 @@ CREATE TABLE IF NOT EXISTS budgets (
   UNIQUE(category_id, month, year)
 );
 
+-- Migration: add installment and paid fields to transactions
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS is_installment BOOLEAN DEFAULT FALSE;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS installment_end_date DATE;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS installment_amount DECIMAL(12, 2);
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS paid BOOLEAN DEFAULT FALSE;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS paid_date DATE;
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date DESC);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);

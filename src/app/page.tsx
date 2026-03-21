@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useTransactions } from '@/hooks/useTransactions'
+import { useReminders } from '@/hooks/useReminders'
 import { MonthPicker } from '@/components/MonthPicker'
 import { SummaryCards } from '@/components/SummaryCards'
 import { TransactionList } from '@/components/TransactionList'
@@ -17,7 +18,8 @@ export default function HomePage() {
   const [year, setYear] = useState(now.getFullYear())
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const { transactions, loading, addTransaction, deleteTransaction } = useTransactions(month, year)
+  const { transactions, loading, addTransaction, deleteTransaction, updatePaidStatus } = useTransactions(month, year)
+  useReminders()
 
   const handleAdd = async (data: Parameters<typeof addTransaction>[0]) => {
     await addTransaction(data)
@@ -51,7 +53,7 @@ export default function HomePage() {
             <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <TransactionList transactions={transactions} onDelete={deleteTransaction} />
+          <TransactionList transactions={transactions} onDelete={deleteTransaction} onTogglePaid={updatePaidStatus} />
         )}
       </div>
 

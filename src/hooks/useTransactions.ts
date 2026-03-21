@@ -51,6 +51,11 @@ export function useTransactions(month?: number, year?: number) {
         category_id: transaction.category_id,
         date: transaction.date,
         notes: transaction.notes,
+        is_installment: transaction.is_installment ?? false,
+        installment_end_date: transaction.installment_end_date ?? null,
+        installment_amount: transaction.installment_amount ?? null,
+        paid: false,
+        paid_date: null,
       })
       .select('*, category:categories(*)')
       .single()
@@ -66,5 +71,16 @@ export function useTransactions(month?: number, year?: number) {
     setTransactions(prev => prev.filter(t => t.id !== id))
   }
 
-  return { transactions, loading, error, addTransaction, deleteTransaction, refetch: fetchTransactions }
+  const updatePaidStatus = async (id: string, paid: boolean) => {
+    const supabase = getSupabase()
+    const paid_date = paid ? new Date().toISOString().split('T')[0] : null
+    const { error } = await supabase
+      .from('transactions')
+      .update({ paid, paid_date })
+      .eq('id', id)
+    if (error) throw error
+    setTransactions(prev => prev.map(t => t.id === id ? { ...t, paid, paid_date } : t))
+  }
+
+  return { transactions, loading, error, addTransaction, deleteTransaction, updatePaidStatus, refetch: fetchTransactions }
 }
