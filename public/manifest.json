@@ -4,7 +4,7 @@
   "description": "Personal finance tracker - web version of PocketFinance Android",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f9fafb",
+  "background_color": "#080d14",
   "theme_color": "#10B981",
   "orientation": "portrait",
   "icons": [

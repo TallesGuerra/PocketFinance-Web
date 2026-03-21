@@ -74,13 +74,25 @@ input[type='number']::-webkit-outer-spin-button {
   margin: 0;
 }
 
-/* Smooth theme transition for interactive elements */
+/* Smooth theme transition */
 *, *::before, *::after {
   transition-property: background-color, border-color, color;
   transition-duration: .15s;
   transition-timing-function: ease;
 }
-/* Override for elements that shouldn't animate */
 button, a, input, select, textarea {
   transition-duration: .1s;
+}
+
+/* ─── Desktop cursor ─── */
+@media (min-width: 1024px) {
+  button, a, [role="button"], select, label[for] {
+    cursor: pointer;
+  }
+  input, textarea {
+    cursor: text;
+  }
+  input[type="checkbox"], input[type="radio"] {
+    cursor: pointer;
+  }
 }
