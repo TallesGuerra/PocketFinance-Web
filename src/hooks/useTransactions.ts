@@ -23,7 +23,10 @@ export function useTransactions(month?: number, year?: number) {
       if (month && year) {
         const start = `${year}-${String(month).padStart(2, '0')}-01`
         const end = new Date(year, month, 0).toISOString().split('T')[0]
-        query = query.gte('date', start).lte('date', end)
+        // Include normal transactions in this month OR installment transactions that span this month
+        query = query.or(
+          `and(date.gte.${start},date.lte.${end}),and(is_installment.eq.true,date.lte.${end},installment_end_date.gte.${start})`
+        )
       }
 
       const { data, error } = await query
