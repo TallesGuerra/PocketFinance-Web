@@ -80,7 +80,7 @@ export function LoginScreen({
       {/* Logo */}
       <div className="mb-10 flex flex-col items-center gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/icon-192x192.png" alt="PocketFinance" className="w-20 h-20 rounded-3xl shadow-2xl" />
+        <img src="/pocketFinance_icon.svg" alt="PocketFinance" className="w-20 h-20 rounded-3xl shadow-2xl" />
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white tracking-tight">PocketFinance</h1>
           <p className="text-slate-400 text-sm mt-1">

@@ -24,7 +24,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="px-5 pt-8 pb-6 flex items-center gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/icon-192x192.png" alt="PocketFinance" className="w-9 h-9 rounded-xl" />
+        <img src="/pocketFinance_icon.svg" alt="PocketFinance" className="w-9 h-9 rounded-xl" />
         <div>
           <p className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">PocketFinance</p>
           <p className="text-xs text-slate-400">Finanças Pessoais</p>

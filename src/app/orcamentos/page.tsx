@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useBudgets } from '@/hooks/useBudgets'
 import { useCategories } from '@/hooks/useCategories'
+import { useBudgetNotifications } from '@/hooks/useBudgetNotifications'
 import { BudgetList } from '@/components/BudgetList'
 import { MonthPicker } from '@/components/MonthPicker'
 import { Budget } from '@/types'
@@ -18,6 +19,7 @@ export default function OrcamentosPage() {
   const { transactions } = useTransactions(month, year)
   const { budgets, loading, upsertBudget, deleteBudget } = useBudgets(month, year)
   const { categories } = useCategories('expense')
+  useBudgetNotifications(month, year)
 
   // Merge budgets with actual spending
   const budgetsWithSpent = budgets.map(b => {

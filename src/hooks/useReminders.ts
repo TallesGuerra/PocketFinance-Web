@@ -32,7 +32,7 @@ export function useReminders() {
             : 'Vence hoje'
           new Notification(`💳 ${t.description}`, {
             body: `${body} — ${Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(t.amount)}`,
-            icon: '/icons/apple-touch-icon.png',
+            icon: '/pocketFinance_icon.svg',
             tag: `expense-${t.id}`,
           })
         })
@@ -46,7 +46,7 @@ export function useReminders() {
                 : 'Vence hoje'
               new Notification(`💳 ${t.description}`, {
                 body: `${body} — ${Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(t.amount)}`,
-                icon: '/icons/apple-touch-icon.png',
+                icon: '/pocketFinance_icon.svg',
                 tag: `expense-${t.id}`,
               })
             })
