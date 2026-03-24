@@ -1,0 +1,90 @@
+<svg width="320" height="660" viewBox="0 0 320 660" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="phoneBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="screenBg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#0d1a26"/>
+      <stop offset="100%" stop-color="#0a1f1a"/>
+    </linearGradient>
+    <clipPath id="screenClip">
+      <rect x="18" y="60" width="284" height="548" rx="4"/>
+    </clipPath>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="8" stdDeviation="20" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Phone body shadow -->
+  <rect x="6" y="6" width="308" height="648" rx="48" fill="#000" opacity="0.4" filter="url(#shadow)"/>
+
+  <!-- Phone body -->
+  <rect x="2" y="2" width="316" height="656" rx="48" fill="url(#phoneBg)" stroke="#374151" stroke-width="1.5"/>
+  <!-- Inner frame -->
+  <rect x="8" y="8" width="304" height="644" rx="44" fill="#111827" stroke="#1f2937" stroke-width="1"/>
+
+  <!-- Side buttons left -->
+  <rect x="0" y="140" width="4" height="36" rx="2" fill="#374151"/>
+  <rect x="0" y="186" width="4" height="36" rx="2" fill="#374151"/>
+  <!-- Side button right -->
+  <rect x="316" y="162" width="4" height="52" rx="2" fill="#374151"/>
+
+  <!-- Screen area -->
+  <rect x="18" y="60" width="284" height="548" fill="url(#screenBg)"/>
+
+  <!-- Dynamic island -->
+  <rect x="120" y="18" width="80" height="26" rx="13" fill="#060d15"/>
+
+  <!-- Status bar -->
+  <g clip-path="url(#screenClip)">
+    <text x="34" y="88" font-size="12" font-weight="600" fill="white">12:14</text>
+    <text x="254" y="88" font-size="12" fill="white" text-anchor="end">5G ▮▮▮</text>
+
+    <!-- Logo area -->
+    <rect x="128" y="108" width="64" height="64" rx="18" fill="#064e3b"/>
+    <rect x="128" y="108" width="64" height="64" rx="18" fill="none" stroke="#059669" stroke-width="1.5"/>
+    <text x="160" y="148" font-size="30" font-weight="800" text-anchor="middle" fill="#10b981">P</text>
+    <line x1="145" y1="162" x2="175" y2="162" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+    <polyline points="145,162 155,157 165,162 175,157" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- App name -->
+    <text x="160" y="200" font-size="20" font-weight="700" text-anchor="middle" fill="white" letter-spacing="-0.5">PocketFinance</text>
+    <text x="160" y="220" font-size="13" text-anchor="middle" fill="#64748b">Finanças Pessoais</text>
+
+    <!-- Subtitle -->
+    <text x="160" y="264" font-size="13" text-anchor="middle" fill="#475569">Escolhe o teu perfil para entrar</text>
+
+    <!-- Profile cards -->
+    <!-- Talles -->
+    <rect x="26" y="278" width="122" height="115" rx="22" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="87" y="334" font-size="40" text-anchor="middle">🧑</text>
+    <text x="87" y="375" font-size="15" font-weight="600" text-anchor="middle" fill="white">Talles</text>
+
+    <!-- Nanda -->
+    <rect x="172" y="278" width="122" height="115" rx="22" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="233" y="334" font-size="40" text-anchor="middle">👩</text>
+    <text x="233" y="375" font-size="15" font-weight="600" text-anchor="middle" fill="white">Nanda</text>
+
+    <!-- Divider "ou" -->
+    <line x1="30" y1="418" x2="148" y2="418" stroke="#1e293b" stroke-width="1"/>
+    <text x="160" y="422" font-size="11" text-anchor="middle" fill="#475569">ou</text>
+    <line x1="172" y1="418" x2="290" y2="418" stroke="#1e293b" stroke-width="1"/>
+
+    <!-- Demo button -->
+    <rect x="60" y="432" width="200" height="42" rx="16" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="120" y="458" font-size="14" text-anchor="middle" fill="#cbd5e1">👤  Modo Visitante</text>
+    <!-- DEMO badge -->
+    <rect x="198" y="441" width="48" height="24" rx="12" fill="#431407"/>
+    <text x="222" y="457" font-size="10" font-weight="700" text-anchor="middle" fill="#fbbf24">DEMO</text>
+
+    <text x="160" y="492" font-size="11" text-anchor="middle" fill="#334155">Dados fictícios · sem registo necessário</text>
+
+    <!-- Footer note -->
+    <text x="160" y="570" font-size="11" text-anchor="middle" fill="#1e293b">Face ID disponível neste dispositivo</text>
+  </g>
+
+  <!-- Home indicator -->
+  <rect x="130" y="634" width="60" height="4" rx="2" fill="#374151"/>
+</svg>
