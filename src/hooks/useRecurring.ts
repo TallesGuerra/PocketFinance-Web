@@ -15,6 +15,8 @@ export interface RecurringTransaction {
   day_of_month: number
   notes?: string | null
   active: boolean
+  start_date?: string | null   // first month to generate (inclusive)
+  end_date?: string | null     // last month to generate (inclusive)
   last_generated_month: number | null
   last_generated_year: number | null
   created_at: string
@@ -43,6 +45,8 @@ export function useRecurring() {
       const now = new Date()
       const currentMonth = now.getMonth() + 1
       const currentYear = now.getFullYear()
+      const monthStart = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`
+      const monthEnd = new Date(currentYear, currentMonth, 0).toISOString().split('T')[0]
       const supabase = getSupabase()
 
       const { data: activeRecurring } = await supabase
@@ -55,12 +59,19 @@ export function useRecurring() {
       type RawRecurring = {
         id: string; description: string; amount: number; type: string;
         category_id: string | null; day_of_month: number; notes: string | null;
+        start_date: string | null; end_date: string | null;
         last_generated_month: number | null; last_generated_year: number | null;
       }
 
       for (const r of activeRecurring as RawRecurring[]) {
         // Skip if already generated for this month
         if (r.last_generated_month === currentMonth && r.last_generated_year === currentYear) continue
+
+        // Respect start_date: skip if hasn't started yet
+        if (r.start_date && r.start_date > monthEnd) continue
+
+        // Respect end_date: skip if already ended
+        if (r.end_date && r.end_date < monthStart) continue
 
         // Calculate the date for this month
         const day = Math.min(r.day_of_month, new Date(currentYear, currentMonth, 0).getDate())
@@ -100,6 +111,8 @@ export function useRecurring() {
       day_of_month: data.day_of_month,
       notes: data.notes,
       active: true,
+      start_date: data.start_date ?? null,
+      end_date: data.end_date ?? null,
       last_generated_month: null,
       last_generated_year: null,
     })

@@ -24,6 +24,7 @@ export interface Transaction {
   paid?: boolean
   paid_date?: string | null
   created_at: string
+  _virtual?: boolean        // not in DB — projected recurring transaction
 }
 
 export interface Budget {

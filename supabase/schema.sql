@@ -57,6 +57,10 @@ CREATE TABLE IF NOT EXISTS recurring_transactions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Migration: add start_date and end_date to recurring_transactions
+ALTER TABLE recurring_transactions ADD COLUMN IF NOT EXISTS start_date DATE;
+ALTER TABLE recurring_transactions ADD COLUMN IF NOT EXISTS end_date DATE;
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date DESC);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);

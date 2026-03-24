@@ -33,6 +33,8 @@ export default function RecorrentesPage() {
   const [recurrence, setRecurrence] = useState<'monthly' | 'weekly' | 'yearly'>('monthly')
   const [dayOfMonth, setDayOfMonth] = useState('1')
   const [notes, setNotes] = useState('')
+  const [startMonth, setStartMonth] = useState('')   // YYYY-MM, optional
+  const [endMonth, setEndMonth] = useState('')       // YYYY-MM, optional
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -40,7 +42,8 @@ export default function RecorrentesPage() {
 
   const resetForm = () => {
     setDescription(''); setAmount(''); setCategoryId('');
-    setRecurrence('monthly'); setDayOfMonth('1'); setNotes(''); setError('')
+    setRecurrence('monthly'); setDayOfMonth('1'); setNotes('');
+    setStartMonth(''); setEndMonth(''); setError('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,6 +51,7 @@ export default function RecorrentesPage() {
     if (!description.trim()) return setError('Descrição é obrigatória')
     if (!amount || Number(amount) <= 0) return setError('Valor inválido')
     if (!categoryId) return setError('Selecciona uma categoria')
+    if (startMonth && endMonth && endMonth < startMonth) return setError('Mês de fim deve ser após o mês de início')
     setSaving(true)
     try {
       await addRecurring({
@@ -59,6 +63,8 @@ export default function RecorrentesPage() {
         day_of_month: Number(dayOfMonth),
         notes: notes.trim() || null,
         active: true,
+        start_date: startMonth ? `${startMonth}-01` : null,
+        end_date: endMonth ? `${endMonth}-01` : null,
       })
       setIsOpen(false)
       resetForm()
@@ -225,6 +231,29 @@ export default function RecorrentesPage() {
             </div>
           </div>
 
+          {/* Optional start / end months */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>Início (opcional)</label>
+              <input
+                type="month"
+                value={startMonth}
+                onChange={e => setStartMonth(e.target.value)}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Fim (opcional)</label>
+              <input
+                type="month"
+                value={endMonth}
+                onChange={e => setEndMonth(e.target.value)}
+                min={startMonth || undefined}
+                className={inputCls}
+              />
+            </div>
+          </div>
+
           <div>
             <label className={labelCls}>Notas (opcional)</label>
             <input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Observações..." className={inputCls} />
@@ -278,6 +307,7 @@ function RecurringGroup({
               <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{r.description}</p>
               <p className="text-xs text-slate-400 dark:text-slate-500">
                 {recurrenceLabels[r.recurrence]} · dia {r.day_of_month}
+                {r.end_date && ` · até ${new Date(r.end_date + 'T00:00:00').toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' })}`}
               </p>
             </div>
             <p className={`text-sm font-semibold flex-shrink-0 ${r.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>

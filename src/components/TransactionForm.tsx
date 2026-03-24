@@ -3,37 +3,47 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { useCategories } from '@/hooks/useCategories'
-import { TransactionType } from '@/types'
+import { Transaction, TransactionType } from '@/types'
 
 const inputCls = 'w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400 dark:placeholder:text-slate-600'
 const labelCls = 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1'
 
-interface TransactionFormProps {
-  onSubmit: (data: {
-    description: string
-    amount: number
-    type: TransactionType
-    category_id: string
-    date: string
-    notes?: string
-    is_installment?: boolean
-    installment_end_date?: string | null
-    installment_amount?: number | null
-  }) => Promise<void>
-  onCancel: () => void
+interface TransactionFormData {
+  description: string
+  amount: number
+  type: TransactionType
+  category_id: string
+  date: string
+  notes?: string
+  is_installment?: boolean
+  installment_end_date?: string | null
+  installment_amount?: number | null
 }
 
-export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
+interface TransactionFormProps {
+  onSubmit: (data: TransactionFormData) => Promise<void>
+  onCancel: () => void
+  initialData?: Partial<Transaction>
+  editMode?: boolean
+}
+
+export function TransactionForm({ onSubmit, onCancel, initialData, editMode = false }: TransactionFormProps) {
   const today = new Date().toISOString().split('T')[0]
-  const [type, setType] = useState<TransactionType>('expense')
-  const [description, setDescription] = useState('')
-  const [amount, setAmount] = useState('')
-  const [categoryId, setCategoryId] = useState('')
-  const [date, setDate] = useState(today)
-  const [notes, setNotes] = useState('')
-  const [isInstallment, setIsInstallment] = useState(false)
-  const [installmentEndDate, setInstallmentEndDate] = useState('')
-  const [installmentAmount, setInstallmentAmount] = useState('')
+  const [type, setType] = useState<TransactionType>(initialData?.type ?? 'expense')
+  const [description, setDescription] = useState(initialData?.description ?? '')
+  const [amount, setAmount] = useState(
+    initialData?.is_installment && initialData?.installment_amount
+      ? String(initialData.installment_amount)
+      : initialData?.amount ? String(initialData.amount) : ''
+  )
+  const [categoryId, setCategoryId] = useState(initialData?.category_id ?? '')
+  const [date, setDate] = useState(initialData?.date ?? today)
+  const [notes, setNotes] = useState(initialData?.notes ?? '')
+  const [isInstallment, setIsInstallment] = useState(initialData?.is_installment ?? false)
+  const [installmentEndDate, setInstallmentEndDate] = useState(initialData?.installment_end_date ?? '')
+  const [installmentAmount, setInstallmentAmount] = useState(
+    initialData?.installment_amount ? String(initialData.installment_amount) : ''
+  )
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -50,19 +60,24 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
     setError('')
     setLoading(true)
     try {
+      const totalAmount = isInstallment && type === 'expense' && installmentAmount
+        ? Number(installmentAmount) // store per-parcel amount as main amount when editing installments
+        : Number(amount)
+
       await onSubmit({
         description: description.trim(),
-        amount: Number(amount),
+        amount: editMode && isInstallment && installmentAmount ? Number(amount) : Number(amount),
         type,
         category_id: categoryId,
         date,
         notes: notes.trim() || undefined,
         is_installment: type === 'expense' ? isInstallment : false,
-        installment_end_date: (type === 'expense' && isInstallment) ? installmentEndDate : null,
+        installment_end_date: (type === 'expense' && isInstallment) ? (installmentEndDate || null) : null,
         installment_amount: (type === 'expense' && isInstallment && installmentAmount)
           ? Number(installmentAmount)
           : null,
       })
+      void totalAmount // suppress unused warning
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao guardar')
     } finally {
@@ -72,27 +87,29 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Type toggle */}
+      {/* Type toggle — disabled in edit mode */}
       <div className="flex rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
         <button
           type="button"
+          disabled={editMode}
           onClick={() => { setType('expense'); setCategoryId(''); setIsInstallment(false) }}
           className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
             type === 'expense'
               ? 'bg-red-500 text-white'
               : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-          }`}
+          } ${editMode ? 'opacity-60 cursor-not-allowed' : ''}`}
         >
           Despesa
         </button>
         <button
           type="button"
+          disabled={editMode}
           onClick={() => { setType('income'); setCategoryId(''); setIsInstallment(false) }}
           className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
             type === 'income'
               ? 'bg-emerald-500 text-white'
               : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-          }`}
+          } ${editMode ? 'opacity-60 cursor-not-allowed' : ''}`}
         >
           Receita
         </button>
@@ -173,7 +190,7 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
             <label className={labelCls}>Fim do parcelamento</label>
             <input
               type="date"
-              value={installmentEndDate}
+              value={installmentEndDate ?? ''}
               onChange={e => setInstallmentEndDate(e.target.value)}
               min={date}
               className={inputCls}
@@ -213,7 +230,7 @@ export function TransactionForm({ onSubmit, onCancel }: TransactionFormProps) {
           Cancelar
         </Button>
         <Button type="submit" className="flex-1" disabled={loading}>
-          {loading ? 'A guardar...' : 'Guardar'}
+          {loading ? 'A guardar...' : editMode ? 'Atualizar' : 'Guardar'}
         </Button>
       </div>
     </form>

@@ -19,7 +19,7 @@ export default function HomePage() {
   const [year, setYear] = useState(now.getFullYear())
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const { transactions, loading, addTransaction, deleteTransaction, updatePaidStatus } = useTransactions(month, year)
+  const { transactions, loading, addTransaction, updateTransaction, deleteTransaction, updatePaidStatus } = useTransactions(month, year)
   const { isDark, setTheme } = useTheme()
   useReminders()
 
@@ -76,7 +76,7 @@ export default function HomePage() {
             <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <TransactionList transactions={transactions} onDelete={deleteTransaction} onTogglePaid={updatePaidStatus} viewMonth={month} viewYear={year} />
+          <TransactionList transactions={transactions} onDelete={deleteTransaction} onTogglePaid={updatePaidStatus} onUpdate={updateTransaction} viewMonth={month} viewYear={year} />
         )}
       </div>
 
