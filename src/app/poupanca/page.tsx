@@ -16,7 +16,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 }
 
 export default function PoupancaPage() {
-  const { savings, loading, addSaving, deleteSaving, totalsByCurrency } = useSavings()
+  const { savings, loading, addSaving, updateSaving, deleteSaving, totalsByCurrency } = useSavings()
 
   const totalInEurEquivalent = Object.entries(totalsByCurrency)
   const hasMultipleCurrencies = totalInEurEquivalent.length > 1
@@ -55,6 +55,7 @@ export default function PoupancaPage() {
             savings={savings}
             totalsByCurrency={totalsByCurrency}
             onAdd={handleAdd}
+            onUpdate={updateSaving}
             onDelete={deleteSaving}
           />
         )}

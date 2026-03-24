@@ -56,11 +56,19 @@ export function useSavings() {
     await fetchSavings()
   }
 
+  const updateSaving = async (id: string, data: Partial<Omit<Saving, 'id' | 'created_at'>>) => {
+    if (isGuest) return
+    const supabase = getSupabase()
+    const { error } = await supabase.from('savings').update(data).eq('id', id)
+    if (error) throw error
+    await fetchSavings()
+  }
+
   // Totals grouped by currency
   const totalsByCurrency = savings.reduce<Record<string, number>>((acc, s) => {
     acc[s.currency] = (acc[s.currency] ?? 0) + s.amount
     return acc
   }, {})
 
-  return { savings, loading, addSaving, deleteSaving, totalsByCurrency }
+  return { savings, loading, addSaving, updateSaving, deleteSaving, totalsByCurrency }
 }

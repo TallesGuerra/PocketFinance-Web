@@ -18,15 +18,16 @@ const CURRENCIES = [
 interface SavingsFormProps {
   onSubmit: (data: { description: string; amount: number; currency: string; notes?: string; date: string }) => Promise<void>
   onCancel: () => void
+  initialValues?: { description: string; amount: number; currency: string; notes?: string; date: string }
 }
 
-export function SavingsForm({ onSubmit, onCancel }: SavingsFormProps) {
+export function SavingsForm({ onSubmit, onCancel, initialValues }: SavingsFormProps) {
   const today = new Date().toISOString().split('T')[0]
-  const [description, setDescription] = useState('')
-  const [amount, setAmount] = useState('')
-  const [currency, setCurrency] = useState('EUR')
-  const [notes, setNotes] = useState('')
-  const [date, setDate] = useState(today)
+  const [description, setDescription] = useState(initialValues?.description ?? '')
+  const [amount, setAmount] = useState(initialValues?.amount ? String(initialValues.amount) : '')
+  const [currency, setCurrency] = useState(initialValues?.currency ?? 'EUR')
+  const [notes, setNotes] = useState(initialValues?.notes ?? '')
+  const [date, setDate] = useState(initialValues?.date ?? today)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
