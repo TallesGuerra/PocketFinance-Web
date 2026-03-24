@@ -132,5 +132,23 @@ export function useRecurring() {
     setRecurring(prev => prev.filter(r => r.id !== id))
   }
 
-  return { recurring, loading, addRecurring, toggleActive, deleteRecurring, refetch: fetch }
+  const updateRecurring = async (id: string, data: Partial<Omit<RecurringTransaction, 'id' | 'created_at' | 'category' | 'last_generated_month' | 'last_generated_year'>>) => {
+    const supabase = getSupabase()
+    const { error } = await supabase.from('recurring_transactions').update({
+      description: data.description,
+      amount: data.amount,
+      type: data.type,
+      category_id: data.category_id,
+      recurrence: data.recurrence,
+      day_of_month: data.day_of_month,
+      notes: data.notes ?? null,
+      active: data.active,
+      start_date: data.start_date ?? null,
+      end_date: data.end_date ?? null,
+    }).eq('id', id)
+    if (error) throw error
+    await fetch()
+  }
+
+  return { recurring, loading, addRecurring, updateRecurring, toggleActive, deleteRecurring, refetch: fetch }
 }

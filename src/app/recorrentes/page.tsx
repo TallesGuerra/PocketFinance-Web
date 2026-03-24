@@ -3,8 +3,8 @@
 export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
-import { Plus, Trash2, Pause, Play, CreditCard } from 'lucide-react'
-import { useRecurring } from '@/hooks/useRecurring'
+import { Plus, Trash2, Pause, Play, CreditCard, Pencil } from 'lucide-react'
+import { useRecurring, RecurringTransaction } from '@/hooks/useRecurring'
 import { useInstallments } from '@/hooks/useInstallments'
 import { useCategories } from '@/hooks/useCategories'
 import { Button } from '@/components/ui/Button'
@@ -23,9 +23,10 @@ const recurrenceLabels: Record<string, string> = {
 }
 
 export default function RecorrentesPage() {
-  const { recurring, loading, addRecurring, toggleActive, deleteRecurring } = useRecurring()
+  const { recurring, loading, addRecurring, updateRecurring, toggleActive, deleteRecurring } = useRecurring()
   const { installments } = useInstallments()
   const [isOpen, setIsOpen] = useState(false)
+  const [editingRecurring, setEditingRecurring] = useState<RecurringTransaction | null>(null)
   const [type, setType] = useState<TransactionType>('expense')
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
@@ -46,6 +47,21 @@ export default function RecorrentesPage() {
     setStartMonth(''); setEndMonth(''); setError('')
   }
 
+  const openEdit = (r: RecurringTransaction) => {
+    setEditingRecurring(r)
+    setType(r.type)
+    setDescription(r.description)
+    setAmount(String(r.amount))
+    setCategoryId(r.category_id)
+    setRecurrence(r.recurrence)
+    setDayOfMonth(String(r.day_of_month))
+    setNotes(r.notes ?? '')
+    setStartMonth(r.start_date ? r.start_date.slice(0, 7) : '')
+    setEndMonth(r.end_date ? r.end_date.slice(0, 7) : '')
+    setError('')
+    setIsOpen(true)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!description.trim()) return setError('Descrição é obrigatória')
@@ -54,7 +70,7 @@ export default function RecorrentesPage() {
     if (startMonth && endMonth && endMonth < startMonth) return setError('Mês de fim deve ser após o mês de início')
     setSaving(true)
     try {
-      await addRecurring({
+      const payload = {
         description: description.trim(),
         amount: Number(amount),
         type,
@@ -62,11 +78,17 @@ export default function RecorrentesPage() {
         recurrence,
         day_of_month: Number(dayOfMonth),
         notes: notes.trim() || null,
-        active: true,
+        active: editingRecurring?.active ?? true,
         start_date: startMonth ? `${startMonth}-01` : null,
         end_date: endMonth ? `${endMonth}-01` : null,
-      })
+      }
+      if (editingRecurring) {
+        await updateRecurring(editingRecurring.id, payload)
+      } else {
+        await addRecurring(payload)
+      }
       setIsOpen(false)
+      setEditingRecurring(null)
       resetForm()
     } catch {
       setError('Erro ao guardar')
@@ -166,19 +188,19 @@ export default function RecorrentesPage() {
         ) : recurring.length > 0 ? (
           <>
             {income.length > 0 && (
-              <RecurringGroup title="Receitas" items={income} onToggle={toggleActive} onDelete={deleteRecurring} />
+              <RecurringGroup title="Receitas" items={income} onToggle={toggleActive} onDelete={deleteRecurring} onEdit={openEdit} />
             )}
             {expenses.length > 0 && (
-              <RecurringGroup title="Despesas" items={expenses} onToggle={toggleActive} onDelete={deleteRecurring} />
+              <RecurringGroup title="Despesas" items={expenses} onToggle={toggleActive} onDelete={deleteRecurring} onEdit={openEdit} />
             )}
             {inactive.length > 0 && (
-              <RecurringGroup title="Pausadas" items={inactive} onToggle={toggleActive} onDelete={deleteRecurring} dimmed />
+              <RecurringGroup title="Pausadas" items={inactive} onToggle={toggleActive} onDelete={deleteRecurring} onEdit={openEdit} dimmed />
             )}
           </>
         ) : null}
       </div>
 
-      <Modal isOpen={isOpen} onClose={() => { setIsOpen(false); resetForm() }} title="Nova Recorrente">
+      <Modal isOpen={isOpen} onClose={() => { setIsOpen(false); setEditingRecurring(null); resetForm() }} title={editingRecurring ? 'Editar Recorrente' : 'Nova Recorrente'}>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Type toggle */}
           <div className="flex rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
@@ -266,7 +288,7 @@ export default function RecorrentesPage() {
               Cancelar
             </Button>
             <Button type="submit" className="flex-1" disabled={saving}>
-              {saving ? 'A guardar...' : 'Guardar'}
+              {saving ? 'A guardar...' : editingRecurring ? 'Atualizar' : 'Guardar'}
             </Button>
           </div>
         </form>
@@ -280,12 +302,14 @@ function RecurringGroup({
   items,
   onToggle,
   onDelete,
+  onEdit,
   dimmed,
 }: {
   title: string
   items: ReturnType<typeof useRecurring>['recurring']
   onToggle: (id: string, active: boolean) => Promise<void>
   onDelete: (id: string) => Promise<void>
+  onEdit: (r: RecurringTransaction) => void
   dimmed?: boolean
 }) {
   return (
@@ -313,6 +337,12 @@ function RecurringGroup({
             <p className={`text-sm font-semibold flex-shrink-0 ${r.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
               {r.type === 'income' ? '+' : '-'}{formatCurrency(r.amount)}
             </p>
+            <button
+              onClick={() => onEdit(r)}
+              className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <Pencil size={14} className="text-slate-300 dark:text-slate-600 hover:text-slate-500 transition-colors" />
+            </button>
             <button
               onClick={() => onToggle(r.id, !r.active)}
               className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
