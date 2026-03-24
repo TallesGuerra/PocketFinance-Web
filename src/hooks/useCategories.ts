@@ -3,12 +3,24 @@
 import { useState, useEffect } from 'react'
 import { getSupabase } from '@/lib/supabase'
 import { Category, TransactionType } from '@/types'
+import { useAuthContext } from '@/components/AuthProvider'
+import { MOCK_CATEGORIES } from '@/lib/mockData'
 
 export function useCategories(type?: TransactionType) {
+  const { activeProfile } = useAuthContext()
+  const isGuest = activeProfile === 'guest'
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (isGuest) {
+      const filtered = type
+        ? MOCK_CATEGORIES.filter(c => c.type === type || c.type === 'both')
+        : MOCK_CATEGORIES
+      setCategories(filtered)
+      setLoading(false)
+      return
+    }
     const fetchCategories = async () => {
       const supabase = getSupabase()
       let query = supabase.from('categories').select('*').order('name')
@@ -20,9 +32,10 @@ export function useCategories(type?: TransactionType) {
       setLoading(false)
     }
     fetchCategories()
-  }, [type])
+  }, [type, isGuest])
 
-  const addCategory = async (category: Omit<Category, 'id' | 'created_at'>) => {
+  const addCategory = async (category: Omit<Category, 'id' | 'created_at'>): Promise<Category> => {
+    if (isGuest) return { ...category, id: 'demo', created_at: new Date().toISOString() }
     const supabase = getSupabase()
     const { data, error } = await supabase
       .from('categories')
@@ -41,6 +54,7 @@ export function useCategories(type?: TransactionType) {
   }
 
   const deleteCategory = async (id: string) => {
+    if (isGuest) return
     const supabase = getSupabase()
     const { error } = await supabase.from('categories').delete().eq('id', id)
     if (error) throw error

@@ -3,12 +3,21 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getSupabase } from '@/lib/supabase'
 import { Saving } from '@/types'
+import { useAuthContext } from '@/components/AuthProvider'
+import { MOCK_SAVINGS } from '@/lib/mockData'
 
 export function useSavings() {
+  const { activeProfile } = useAuthContext()
+  const isGuest = activeProfile === 'guest'
   const [savings, setSavings] = useState<Saving[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchSavings = useCallback(async () => {
+    if (isGuest) {
+      setSavings(MOCK_SAVINGS)
+      setLoading(false)
+      return
+    }
     const supabase = getSupabase()
     const { data } = await supabase
       .from('savings')
@@ -16,10 +25,11 @@ export function useSavings() {
       .order('date', { ascending: false })
     setSavings((data as Saving[]) ?? [])
     setLoading(false)
-  }, [])
+  }, [isGuest])
 
   useEffect(() => {
     fetchSavings()
+    if (isGuest) return
 
     const supabase = getSupabase()
     const channel = supabase
@@ -28,9 +38,10 @@ export function useSavings() {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [fetchSavings])
+  }, [fetchSavings, isGuest])
 
   const addSaving = async (data: Omit<Saving, 'id' | 'created_at'>) => {
+    if (isGuest) return
     const supabase = getSupabase()
     const { error } = await supabase.from('savings').insert([data])
     if (error) throw error
@@ -38,6 +49,7 @@ export function useSavings() {
   }
 
   const deleteSaving = async (id: string) => {
+    if (isGuest) return
     const supabase = getSupabase()
     const { error } = await supabase.from('savings').delete().eq('id', id)
     if (error) throw error

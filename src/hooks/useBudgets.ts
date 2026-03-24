@@ -3,12 +3,21 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getSupabase } from '@/lib/supabase'
 import { Budget } from '@/types'
+import { useAuthContext } from '@/components/AuthProvider'
+import { getMockBudgets } from '@/lib/mockData'
 
 export function useBudgets(month: number, year: number) {
+  const { activeProfile } = useAuthContext()
+  const isGuest = activeProfile === 'guest'
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchBudgets = useCallback(async () => {
+    if (isGuest) {
+      setBudgets(getMockBudgets(month, year))
+      setLoading(false)
+      return
+    }
     const supabase = getSupabase()
     const { data } = await supabase
       .from('budgets')
@@ -17,13 +26,14 @@ export function useBudgets(month: number, year: number) {
       .eq('year', year)
     setBudgets((data as unknown as Budget[]) || [])
     setLoading(false)
-  }, [month, year])
+  }, [month, year, isGuest])
 
   useEffect(() => {
     fetchBudgets()
   }, [fetchBudgets])
 
   const upsertBudget = async (budget: Omit<Budget, 'id' | 'created_at' | 'category'>) => {
+    if (isGuest) return null
     const supabase = getSupabase()
     const { data, error } = await supabase
       .from('budgets')
@@ -39,6 +49,7 @@ export function useBudgets(month: number, year: number) {
   }
 
   const deleteBudget = async (id: string) => {
+    if (isGuest) return
     const supabase = getSupabase()
     const { error } = await supabase.from('budgets').delete().eq('id', id)
     if (error) throw error

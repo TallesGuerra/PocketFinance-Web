@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { ChevronLeft, Delete, Fingerprint } from 'lucide-react'
 import { Profile, AuthStatus } from '@/hooks/useAuth'
 
-const PROFILES: Record<Profile, { label: string; emoji: string }> = {
+const PROFILES: Record<Exclude<Profile, 'guest'>, { label: string; emoji: string }> = {
   talles: { label: 'Talles', emoji: '🧑' },
   nanda: { label: 'Nanda', emoji: '👩' },
 }
@@ -90,6 +90,26 @@ function ProfileSelector({ onSelect }: { onSelect: (p: Profile) => void }) {
           </button>
         ))}
       </div>
+
+      {/* Demo / portfolio access */}
+      <div className="flex flex-col items-center gap-2 w-full">
+        <div className="flex items-center gap-3 w-full">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-slate-500 text-xs">ou</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+        <button
+          onClick={() => onSelect('guest')}
+          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-2xl transition-all"
+        >
+          <span className="text-base">👤</span>
+          <span className="text-slate-300 text-sm font-medium">Modo Visitante</span>
+          <span className="bg-amber-500/20 text-amber-300 text-xs font-semibold px-2 py-0.5 rounded-full border border-amber-500/30">
+            DEMO
+          </span>
+        </button>
+        <p className="text-slate-600 text-xs text-center">Dados fictícios · sem registo necessário</p>
+      </div>
     </div>
   )
 }
@@ -100,7 +120,7 @@ function SetupPin({
   onSubmit,
   onBack,
 }: {
-  profile: Profile
+  profile: Exclude<Profile, 'guest'>
   onSubmit: (pin: string) => Promise<boolean>
   onBack: () => void
 }) {
@@ -184,7 +204,7 @@ function LoginPin({
   onBiometric,
   onBack,
 }: {
-  profile: Profile
+  profile: Exclude<Profile, 'guest'>
   hasWebAuthnCred: boolean
   onSubmit: (pin: string) => Promise<boolean>
   onBiometric: () => Promise<boolean>
@@ -263,7 +283,7 @@ function OfferBiometric({
   onSetup,
   onSkip,
 }: {
-  profile: Profile
+  profile: Exclude<Profile, 'guest'>
   onSetup: () => Promise<boolean>
   onSkip: () => void
 }) {
@@ -339,11 +359,11 @@ export function LoginScreen({
         <ProfileSelector onSelect={onSelectProfile} />
       )}
 
-      {status === 'setup_pin' && selectedProfile && (
+      {status === 'setup_pin' && selectedProfile && selectedProfile !== 'guest' && (
         <SetupPin profile={selectedProfile} onSubmit={onSetupPin} onBack={onBack} />
       )}
 
-      {status === 'login' && selectedProfile && (
+      {status === 'login' && selectedProfile && selectedProfile !== 'guest' && (
         <LoginPin
           profile={selectedProfile}
           hasWebAuthnCred={hasWebAuthnCred}
@@ -353,7 +373,7 @@ export function LoginScreen({
         />
       )}
 
-      {status === 'offer_biometric' && selectedProfile && (
+      {status === 'offer_biometric' && selectedProfile && selectedProfile !== 'guest' && (
         <OfferBiometric
           profile={selectedProfile}
           onSetup={onSetupBiometric}

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getSupabase } from '@/lib/supabase'
 
-export type Profile = 'talles' | 'nanda'
+export type Profile = 'talles' | 'nanda' | 'guest'
 
 // Status flow:
 // loading → select_profile → setup_pin → authenticated
@@ -24,6 +24,7 @@ const CRED_KEY = (p: Profile) => `pf_cred_${p}`
 const PROFILE_META: Record<Profile, { label: string; emoji: string }> = {
   talles: { label: 'Talles', emoji: '🧑' },
   nanda: { label: 'Nanda', emoji: '👩' },
+  guest: { label: 'Visitante', emoji: '👤' },
 }
 
 function getSession(): { profile: Profile; expires: number } | null {
@@ -80,6 +81,15 @@ export function useAuth() {
   }, [])
 
   const selectProfile = useCallback(async (profile: Profile) => {
+    // Guest: no PIN needed — enter directly
+    if (profile === 'guest') {
+      startSession('guest')
+      setSelectedProfile('guest')
+      setActiveProfile('guest')
+      setStatus('authenticated')
+      return
+    }
+
     setSelectedProfile(profile)
     const credId = localStorage.getItem(CRED_KEY(profile))
     const hasCred = !!(credId && webAuthnSupported && isTouchDevice())

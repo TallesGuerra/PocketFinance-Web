@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getSupabase } from '@/lib/supabase'
 import { Category, TransactionType } from '@/types'
+import { useAuthContext } from '@/components/AuthProvider'
+import { MOCK_RECURRING } from '@/lib/mockData'
 
 export interface RecurringTransaction {
   id: string
@@ -23,10 +25,17 @@ export interface RecurringTransaction {
 }
 
 export function useRecurring() {
+  const { activeProfile } = useAuthContext()
+  const isGuest = activeProfile === 'guest'
   const [recurring, setRecurring] = useState<RecurringTransaction[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetch = useCallback(async () => {
+    if (isGuest) {
+      setRecurring(MOCK_RECURRING)
+      setLoading(false)
+      return
+    }
     setLoading(true)
     const supabase = getSupabase()
     const { data } = await supabase
@@ -35,12 +44,13 @@ export function useRecurring() {
       .order('created_at', { ascending: false })
     setRecurring((data as unknown as RecurringTransaction[]) || [])
     setLoading(false)
-  }, [])
+  }, [isGuest])
 
   useEffect(() => { fetch() }, [fetch])
 
   // Real-time subscription — refetch whenever recurring_transactions table changes
   useEffect(() => {
+    if (isGuest) return
     const supabase = getSupabase()
     const channel = supabase
       .channel('recurring-realtime')
@@ -49,10 +59,11 @@ export function useRecurring() {
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [fetch])
+  }, [fetch, isGuest])
 
-  // Auto-generate transactions for current month on mount
+  // Auto-generate transactions for current month on mount (skip in guest mode)
   useEffect(() => {
+    if (isGuest) return
     const autoGenerate = async () => {
       const now = new Date()
       const currentMonth = now.getMonth() + 1
@@ -110,9 +121,10 @@ export function useRecurring() {
     }
 
     autoGenerate()
-  }, [])
+  }, [isGuest])
 
   const addRecurring = async (data: Omit<RecurringTransaction, 'id' | 'created_at' | 'category' | 'last_generated_month' | 'last_generated_year'>) => {
+    if (isGuest) return
     const supabase = getSupabase()
     const { error } = await supabase.from('recurring_transactions').insert({
       description: data.description,
@@ -133,18 +145,21 @@ export function useRecurring() {
   }
 
   const toggleActive = async (id: string, active: boolean) => {
+    if (isGuest) return
     const supabase = getSupabase()
     await supabase.from('recurring_transactions').update({ active }).eq('id', id)
     setRecurring(prev => prev.map(r => r.id === id ? { ...r, active } : r))
   }
 
   const deleteRecurring = async (id: string) => {
+    if (isGuest) return
     const supabase = getSupabase()
     await supabase.from('recurring_transactions').delete().eq('id', id)
     setRecurring(prev => prev.filter(r => r.id !== id))
   }
 
   const updateRecurring = async (id: string, data: Partial<Omit<RecurringTransaction, 'id' | 'created_at' | 'category' | 'last_generated_month' | 'last_generated_year'>>) => {
+    if (isGuest) return
     const supabase = getSupabase()
     const { error } = await supabase.from('recurring_transactions').update({
       description: data.description,

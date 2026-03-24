@@ -3,13 +3,27 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getSupabase } from '@/lib/supabase'
 import { Transaction } from '@/types'
+import { useAuthContext } from '@/components/AuthProvider'
+import { MOCK_TRANSACTIONS } from '@/lib/mockData'
 
 export function useTransactions(month?: number, year?: number) {
+  const { activeProfile } = useAuthContext()
+  const isGuest = activeProfile === 'guest'
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchTransactions = useCallback(async () => {
+    if (isGuest) {
+      const filtered = MOCK_TRANSACTIONS.filter(t => {
+        if (!month || !year) return true
+        const [y, m] = t.date.split('-').map(Number)
+        return y === year && m === month
+      })
+      setTransactions(filtered.sort((a, b) => b.date.localeCompare(a.date)))
+      setLoading(false)
+      return
+    }
     setLoading(true)
     setError(null)
     try {
@@ -87,7 +101,7 @@ export function useTransactions(month?: number, year?: number) {
     } finally {
       setLoading(false)
     }
-  }, [month, year])
+  }, [month, year, isGuest])
 
   useEffect(() => {
     fetchTransactions()
@@ -95,6 +109,7 @@ export function useTransactions(month?: number, year?: number) {
 
   // Real-time subscription — refetch whenever transactions table changes
   useEffect(() => {
+    if (isGuest) return
     const supabase = getSupabase()
     const channel = supabase
       .channel('transactions-realtime')
@@ -106,6 +121,7 @@ export function useTransactions(month?: number, year?: number) {
   }, [fetchTransactions])
 
   const addTransaction = async (transaction: Omit<Transaction, 'id' | 'created_at' | 'category' | '_virtual'>) => {
+    if (isGuest) return null
     const supabase = getSupabase()
     const { data, error } = await supabase
       .from('transactions')
@@ -130,6 +146,7 @@ export function useTransactions(month?: number, year?: number) {
   }
 
   const updateTransaction = async (id: string, transaction: Partial<Omit<Transaction, 'id' | 'created_at' | 'category' | '_virtual'>>) => {
+    if (isGuest) return
     const supabase = getSupabase()
     const { error } = await supabase
       .from('transactions')
@@ -150,6 +167,7 @@ export function useTransactions(month?: number, year?: number) {
   }
 
   const deleteTransaction = async (id: string) => {
+    if (isGuest) return
     const supabase = getSupabase()
     const { error } = await supabase.from('transactions').delete().eq('id', id)
     if (error) throw error
@@ -157,6 +175,7 @@ export function useTransactions(month?: number, year?: number) {
   }
 
   const updatePaidStatus = async (id: string, paid: boolean) => {
+    if (isGuest) return
     const supabase = getSupabase()
     const paid_date = paid ? new Date().toISOString().split('T')[0] : null
     const { error } = await supabase
