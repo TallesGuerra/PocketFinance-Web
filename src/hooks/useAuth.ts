@@ -1,23 +1,43 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { getSupabase } from '@/lib/supabase'
 
-const CREDENTIAL_KEY = 'pf_credential_id'
-const SESSION_KEY = 'pf_session'
+export type Profile = 'talles' | 'nanda'
+
+// Status flow:
+// loading → select_profile → setup_pin → authenticated
+//                          → login     → authenticated
+//                                      → offer_biometric → authenticated
+export type AuthStatus =
+  | 'loading'
+  | 'select_profile'
+  | 'setup_pin'
+  | 'login'
+  | 'offer_biometric'
+  | 'authenticated'
+
+const SESSION_KEY = 'pf_session_v2'
 const SESSION_DURATION = 8 * 60 * 60 * 1000 // 8h
+const CRED_KEY = (p: Profile) => `pf_cred_${p}`
 
-function isSessionValid(): boolean {
-  try {
-    const expires = sessionStorage.getItem(SESSION_KEY)
-    if (!expires) return false
-    return Date.now() < Number(expires)
-  } catch {
-    return false
-  }
+const PROFILE_META: Record<Profile, { label: string; emoji: string }> = {
+  talles: { label: 'Talles', emoji: '🧑' },
+  nanda: { label: 'Nanda', emoji: '👩' },
 }
 
-function startSession() {
-  sessionStorage.setItem(SESSION_KEY, String(Date.now() + SESSION_DURATION))
+function getSession(): { profile: Profile; expires: number } | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    if (!raw) return null
+    const s = JSON.parse(raw)
+    if (Date.now() > s.expires) return null
+    return s
+  } catch { return null }
+}
+
+function startSession(profile: Profile) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ profile, expires: Date.now() + SESSION_DURATION }))
 }
 
 function bufToB64(buf: ArrayBuffer): string {
@@ -28,72 +48,112 @@ function b64ToBuf(b64: string): ArrayBuffer {
   return Uint8Array.from(atob(b64), c => c.charCodeAt(0)).buffer
 }
 
+async function hashPin(pin: string, salt: string): Promise<string> {
+  const enc = new TextEncoder()
+  const data = enc.encode(pin + salt)
+  const hash = await crypto.subtle.digest('SHA-256', data)
+  return bufToB64(hash)
+}
+
+function isTouchDevice(): boolean {
+  return typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0
+}
+
 export function useAuth() {
-  const [status, setStatus] = useState<'loading' | 'setup' | 'login' | 'authenticated'>('loading')
-  const [supported, setSupported] = useState(false)
+  const [status, setStatus] = useState<AuthStatus>('loading')
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null)
+  const [activeProfile, setActiveProfile] = useState<Profile | null>(null)
+  const [webAuthnSupported, setWebAuthnSupported] = useState(false)
+  const [hasWebAuthnCred, setHasWebAuthnCred] = useState(false)
 
   useEffect(() => {
-    const isSupported =
-      typeof window !== 'undefined' &&
-      !!window.PublicKeyCredential &&
-      typeof navigator.credentials?.create === 'function'
-    setSupported(isSupported)
+    const supported = typeof window !== 'undefined' && !!window.PublicKeyCredential
+    setWebAuthnSupported(supported)
 
-    const credId = localStorage.getItem(CREDENTIAL_KEY)
-    if (!credId) {
-      setStatus('setup')
-    } else if (isSessionValid()) {
+    const session = getSession()
+    if (session) {
+      setActiveProfile(session.profile)
       setStatus('authenticated')
     } else {
+      setStatus('select_profile')
+    }
+  }, [])
+
+  const selectProfile = useCallback(async (profile: Profile) => {
+    setSelectedProfile(profile)
+    const credId = localStorage.getItem(CRED_KEY(profile))
+    const hasCred = !!(credId && webAuthnSupported && isTouchDevice())
+    setHasWebAuthnCred(hasCred)
+
+    try {
+      const supabase = getSupabase()
+      const { data } = await supabase
+        .from('profiles')
+        .select('pin_hash')
+        .eq('id', profile)
+        .maybeSingle()
+
+      setStatus(!data?.pin_hash ? 'setup_pin' : 'login')
+    } catch {
       setStatus('login')
     }
-  }, [])
+  }, [webAuthnSupported])
 
-  // First-time setup: register device credential (triggers Face ID / device PIN)
-  const setup = useCallback(async (): Promise<boolean> => {
+  // First-time PIN creation
+  const setupPin = useCallback(async (pin: string): Promise<boolean> => {
+    if (!selectedProfile) return false
     try {
-      const challenge = crypto.getRandomValues(new Uint8Array(32))
-      const cred = await navigator.credentials.create({
-        publicKey: {
-          challenge,
-          rp: {
-            name: 'PocketFinance',
-            id: window.location.hostname,
-          },
-          user: {
-            id: crypto.getRandomValues(new Uint8Array(16)),
-            name: 'pocketfinance_user',
-            displayName: 'Utilizador',
-          },
-          pubKeyCredParams: [
-            { alg: -7, type: 'public-key' },   // ES256
-            { alg: -257, type: 'public-key' },  // RS256
-          ],
-          authenticatorSelection: {
-            authenticatorAttachment: 'platform',
-            userVerification: 'required',
-            residentKey: 'preferred',
-          },
-          timeout: 60000,
-        },
-      }) as PublicKeyCredential | null
-
-      if (!cred) return false
-      localStorage.setItem(CREDENTIAL_KEY, bufToB64(cred.rawId))
-      startSession()
+      const salt = bufToB64(crypto.getRandomValues(new Uint8Array(16)).buffer)
+      const pin_hash = await hashPin(pin, salt)
+      const meta = PROFILE_META[selectedProfile]
+      const supabase = getSupabase()
+      const { error } = await supabase.from('profiles').upsert(
+        { id: selectedProfile, display_name: meta.label, avatar_emoji: meta.emoji, pin_hash, pin_salt: salt },
+        { onConflict: 'id' }
+      )
+      if (error) return false
+      startSession(selectedProfile)
+      setActiveProfile(selectedProfile)
       setStatus('authenticated')
       return true
-    } catch {
-      return false
-    }
-  }, [])
+    } catch { return false }
+  }, [selectedProfile])
 
-  // Login: authenticate with stored device credential (Face ID / device PIN)
-  const login = useCallback(async (): Promise<boolean> => {
+  // Login with PIN — on mobile without biometrics set up, offer to register
+  const loginWithPin = useCallback(async (pin: string): Promise<boolean> => {
+    if (!selectedProfile) return false
     try {
-      const stored = localStorage.getItem(CREDENTIAL_KEY)
-      if (!stored) return false
+      const supabase = getSupabase()
+      const { data } = await supabase
+        .from('profiles')
+        .select('pin_hash, pin_salt')
+        .eq('id', selectedProfile)
+        .maybeSingle()
+      if (!data?.pin_hash || !data?.pin_salt) return false
 
+      const hash = await hashPin(pin, data.pin_salt)
+      if (hash !== data.pin_hash) return false
+
+      startSession(selectedProfile)
+      setActiveProfile(selectedProfile)
+
+      // On touch devices without biometric registered, offer to set it up
+      const hasCred = !!localStorage.getItem(CRED_KEY(selectedProfile))
+      if (isTouchDevice() && webAuthnSupported && !hasCred) {
+        setStatus('offer_biometric')
+      } else {
+        setStatus('authenticated')
+      }
+      return true
+    } catch { return false }
+  }, [selectedProfile, webAuthnSupported])
+
+  // Login with Face ID / biometric
+  const loginWithBiometric = useCallback(async (): Promise<boolean> => {
+    if (!selectedProfile) return false
+    try {
+      const stored = localStorage.getItem(CRED_KEY(selectedProfile))
+      if (!stored) return false
       const challenge = crypto.getRandomValues(new Uint8Array(32))
       const assertion = await navigator.credentials.get({
         publicKey: {
@@ -103,26 +163,78 @@ export function useAuth() {
           timeout: 60000,
         },
       })
-
       if (!assertion) return false
-      startSession()
+      startSession(selectedProfile)
+      setActiveProfile(selectedProfile)
       setStatus('authenticated')
       return true
-    } catch {
-      return false
-    }
+    } catch { return false }
+  }, [selectedProfile])
+
+  // Register biometric after PIN login (optional, touch devices only)
+  const setupBiometric = useCallback(async (): Promise<boolean> => {
+    if (!selectedProfile || !webAuthnSupported) return false
+    try {
+      const meta = PROFILE_META[selectedProfile]
+      const challenge = crypto.getRandomValues(new Uint8Array(32))
+      const cred = await navigator.credentials.create({
+        publicKey: {
+          challenge,
+          rp: { name: 'PocketFinance', id: window.location.hostname },
+          user: {
+            id: crypto.getRandomValues(new Uint8Array(16)),
+            name: `pocketfinance_${selectedProfile}`,
+            displayName: meta.label,
+          },
+          pubKeyCredParams: [
+            { alg: -7, type: 'public-key' },
+            { alg: -257, type: 'public-key' },
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: 'platform',
+            userVerification: 'required',
+            residentKey: 'preferred',
+          },
+          timeout: 60000,
+        },
+      }) as PublicKeyCredential | null
+      if (!cred) return false
+      localStorage.setItem(CRED_KEY(selectedProfile), bufToB64(cred.rawId))
+      setHasWebAuthnCred(true)
+      setStatus('authenticated')
+      return true
+    } catch { return false }
+  }, [selectedProfile, webAuthnSupported])
+
+  const skipBiometric = useCallback(() => {
+    setStatus('authenticated')
   }, [])
 
   const logout = useCallback(() => {
     sessionStorage.removeItem(SESSION_KEY)
-    setStatus('login')
+    setActiveProfile(null)
+    setSelectedProfile(null)
+    setStatus('select_profile')
   }, [])
 
-  const resetAuth = useCallback(() => {
-    localStorage.removeItem(CREDENTIAL_KEY)
-    sessionStorage.removeItem(SESSION_KEY)
-    setStatus('setup')
+  const backToProfiles = useCallback(() => {
+    setSelectedProfile(null)
+    setStatus('select_profile')
   }, [])
 
-  return { status, supported, setup, login, logout, resetAuth }
+  return {
+    status,
+    selectedProfile,
+    activeProfile,
+    webAuthnSupported,
+    hasWebAuthnCred,
+    selectProfile,
+    setupPin,
+    loginWithPin,
+    loginWithBiometric,
+    setupBiometric,
+    skipBiometric,
+    logout,
+    backToProfiles,
+  }
 }

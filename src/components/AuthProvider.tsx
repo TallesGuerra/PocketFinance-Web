@@ -1,12 +1,17 @@
 'use client'
 
 import { createContext, useContext } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, Profile } from '@/hooks/useAuth'
 import { LoginScreen } from '@/components/auth/LoginScreen'
 
-const AuthContext = createContext<{ logout: () => void; resetAuth: () => void }>({
+interface AuthContextValue {
+  activeProfile: Profile | null
+  logout: () => void
+}
+
+const AuthContext = createContext<AuthContextValue>({
+  activeProfile: null,
   logout: () => {},
-  resetAuth: () => {},
 })
 
 export function useAuthContext() {
@@ -14,7 +19,21 @@ export function useAuthContext() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { status, supported, setup, login, logout, resetAuth } = useAuth()
+  const {
+    status,
+    selectedProfile,
+    activeProfile,
+    webAuthnSupported,
+    hasWebAuthnCred,
+    selectProfile,
+    setupPin,
+    loginWithPin,
+    loginWithBiometric,
+    setupBiometric,
+    skipBiometric,
+    logout,
+    backToProfiles,
+  } = useAuth()
 
   if (status === 'loading') {
     return (
@@ -24,19 +43,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (status === 'setup' || status === 'login') {
+  if (status !== 'authenticated') {
     return (
       <LoginScreen
-        mode={status}
-        supported={supported}
-        onSetup={setup}
-        onLogin={login}
+        status={status}
+        selectedProfile={selectedProfile}
+        hasWebAuthnCred={hasWebAuthnCred}
+        webAuthnSupported={webAuthnSupported}
+        onSelectProfile={selectProfile}
+        onSetupPin={setupPin}
+        onLoginWithPin={loginWithPin}
+        onLoginWithBiometric={loginWithBiometric}
+        onSetupBiometric={setupBiometric}
+        onSkipBiometric={skipBiometric}
+        onBack={backToProfiles}
       />
     )
   }
 
   return (
-    <AuthContext.Provider value={{ logout, resetAuth }}>
+    <AuthContext.Provider value={{ activeProfile, logout }}>
       {children}
     </AuthContext.Provider>
   )

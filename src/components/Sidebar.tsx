@@ -17,17 +17,23 @@ const links = [
 export function Sidebar() {
   const pathname = usePathname()
   const { isDark, setTheme } = useTheme()
-  const { logout } = useAuthContext()
+  const { logout, activeProfile } = useAuthContext()
+
+  const profileLabel = activeProfile === 'talles' ? 'Talles' : activeProfile === 'nanda' ? 'Nanda' : null
+  const profileEmoji = activeProfile === 'talles' ? '🧑' : activeProfile === 'nanda' ? '👩' : null
 
   return (
     <aside className="hidden lg:flex flex-col w-60 shrink-0 min-h-screen border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 sticky top-0">
-      {/* Logo */}
+      {/* Logo + active profile */}
       <div className="px-5 pt-8 pb-6 flex items-center gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/pocketFinance_icon.svg" alt="PocketFinance" className="w-9 h-9 rounded-xl" />
         <div>
           <p className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">PocketFinance</p>
-          <p className="text-xs text-slate-400">Finanças Pessoais</p>
+          {profileLabel
+            ? <p className="text-xs text-slate-400">{profileEmoji} {profileLabel}</p>
+            : <p className="text-xs text-slate-400">Finanças Pessoais</p>
+          }
         </div>
       </div>
 

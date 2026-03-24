@@ -61,6 +61,21 @@ CREATE TABLE IF NOT EXISTS recurring_transactions (
 ALTER TABLE recurring_transactions ADD COLUMN IF NOT EXISTS start_date DATE;
 ALTER TABLE recurring_transactions ADD COLUMN IF NOT EXISTS end_date DATE;
 
+-- Profiles table (named users with PIN auth)
+CREATE TABLE IF NOT EXISTS profiles (
+  id TEXT PRIMARY KEY CHECK (id IN ('talles', 'nanda')),
+  display_name TEXT NOT NULL,
+  avatar_emoji TEXT NOT NULL DEFAULT '👤',
+  pin_hash TEXT,
+  pin_salt TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO profiles (id, display_name, avatar_emoji) VALUES
+  ('talles', 'Talles', '🧑'),
+  ('nanda', 'Nanda', '👩')
+ON CONFLICT DO NOTHING;
+
 -- Savings table
 CREATE TABLE IF NOT EXISTS savings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

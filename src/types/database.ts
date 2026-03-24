@@ -148,6 +148,33 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          id: string
+          display_name: string
+          avatar_emoji: string
+          pin_hash: string | null
+          pin_salt: string | null
+          created_at: string
+        }
+        Insert: {
+          id: string
+          display_name: string
+          avatar_emoji?: string
+          pin_hash?: string | null
+          pin_salt?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          display_name?: string
+          avatar_emoji?: string
+          pin_hash?: string | null
+          pin_salt?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       savings: {
         Row: {
           id: string
