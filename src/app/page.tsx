@@ -11,13 +11,17 @@ import { MonthPicker } from '@/components/MonthPicker'
 import { SummaryCards } from '@/components/SummaryCards'
 import { TransactionList } from '@/components/TransactionList'
 import { TransactionForm } from '@/components/TransactionForm'
+import { ExpensesByCategory } from '@/components/ExpensesByCategory'
 import { Modal } from '@/components/ui/Modal'
+
+type View = 'history' | 'by-category'
 
 export default function HomePage() {
   const now = new Date()
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [view, setView] = useState<View>('history')
 
   const { transactions, loading, addTransaction, updateTransaction, deleteTransaction, updatePaidStatus } = useTransactions(month, year)
   const { isDark, setTheme } = useTheme()
@@ -70,13 +74,38 @@ export default function HomePage() {
 
       {/* Content */}
       <div className="px-4 py-4 space-y-3">
-        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Histórico</h2>
+        {/* View toggle */}
+        <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+          <button
+            onClick={() => setView('history')}
+            className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all ${
+              view === 'history'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
+                : 'text-slate-500 dark:text-slate-400'
+            }`}
+          >
+            Histórico
+          </button>
+          <button
+            onClick={() => setView('by-category')}
+            className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all ${
+              view === 'by-category'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
+                : 'text-slate-500 dark:text-slate-400'
+            }`}
+          >
+            Por categoria
+          </button>
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : (
+        ) : view === 'history' ? (
           <TransactionList transactions={transactions} onDelete={deleteTransaction} onTogglePaid={updatePaidStatus} onUpdate={updateTransaction} viewMonth={month} viewYear={year} />
+        ) : (
+          <ExpensesByCategory transactions={transactions} />
         )}
       </div>
 
@@ -86,3 +115,4 @@ export default function HomePage() {
     </div>
   )
 }
+
