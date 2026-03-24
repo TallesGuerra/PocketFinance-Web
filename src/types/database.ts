@@ -148,6 +148,36 @@ export type Database = {
         }
         Relationships: []
       }
+      savings: {
+        Row: {
+          id: string
+          description: string
+          amount: number
+          currency: string
+          notes: string | null
+          date: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          description: string
+          amount: number
+          currency?: string
+          notes?: string | null
+          date?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          description?: string
+          amount?: number
+          currency?: string
+          notes?: string | null
+          date?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
