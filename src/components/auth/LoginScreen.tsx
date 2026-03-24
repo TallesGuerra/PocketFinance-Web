@@ -75,7 +75,7 @@ function ProfileSelector({ onSelect }: { onSelect: (p: Profile) => void }) {
   return (
     <div className="flex flex-col items-center gap-8 w-full max-w-xs">
       <div className="text-center">
-        <h2 className="text-white text-xl font-semibold">Quem és tu?</h2>
+   {/*      <h2 className="text-white text-xl font-semibold">Quem és tu?</h2> */}
         <p className="text-slate-400 text-sm mt-1">Escolhe o teu perfil para entrar</p>
       </div>
       <div className="flex gap-4 w-full">
