@@ -37,6 +37,16 @@ export interface Budget {
   created_at: string
 }
 
+export interface Saving {
+  id: string
+  description: string
+  amount: number
+  currency: string
+  notes?: string
+  date: string
+  created_at: string
+}
+
 export interface MonthlySummary {
   totalIncome: number
   totalExpenses: number

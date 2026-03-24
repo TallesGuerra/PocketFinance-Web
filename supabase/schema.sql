@@ -61,11 +61,24 @@ CREATE TABLE IF NOT EXISTS recurring_transactions (
 ALTER TABLE recurring_transactions ADD COLUMN IF NOT EXISTS start_date DATE;
 ALTER TABLE recurring_transactions ADD COLUMN IF NOT EXISTS end_date DATE;
 
+-- Savings table
+CREATE TABLE IF NOT EXISTS savings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  description TEXT NOT NULL,
+  amount DECIMAL(12, 2) NOT NULL CHECK (amount > 0),
+  currency TEXT NOT NULL DEFAULT 'EUR',
+  notes TEXT,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date DESC);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
 CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category_id);
 CREATE INDEX IF NOT EXISTS idx_budgets_month_year ON budgets(month, year);
+CREATE INDEX IF NOT EXISTS idx_savings_date ON savings(date DESC);
+CREATE INDEX IF NOT EXISTS idx_savings_currency ON savings(currency);
 
 -- Default categories
 INSERT INTO categories (name, icon, color, type) VALUES
