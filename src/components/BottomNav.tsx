@@ -2,13 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ArrowLeftRight, RefreshCcw, PiggyBank, Tag } from 'lucide-react'
+import { LayoutDashboard, ArrowLeftRight, RefreshCcw, Wallet, Tag } from 'lucide-react'
 
 const links = [
   { href: '/', label: 'Início', icon: LayoutDashboard },
   { href: '/transacoes', label: 'Transações', icon: ArrowLeftRight },
   { href: '/recorrentes', label: 'Recorrentes', icon: RefreshCcw },
-  { href: '/poupanca', label: 'Poupança', icon: PiggyBank },
+  { href: '/poupanca', label: 'Poupança', icon: Wallet },
   { href: '/categorias', label: 'Categorias', icon: Tag },
 ]
 
