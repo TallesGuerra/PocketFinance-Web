@@ -93,6 +93,18 @@ export function useTransactions(month?: number, year?: number) {
     fetchTransactions()
   }, [fetchTransactions])
 
+  // Real-time subscription — refetch whenever transactions table changes
+  useEffect(() => {
+    const supabase = getSupabase()
+    const channel = supabase
+      .channel('transactions-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
+        fetchTransactions()
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [fetchTransactions])
+
   const addTransaction = async (transaction: Omit<Transaction, 'id' | 'created_at' | 'category' | '_virtual'>) => {
     const supabase = getSupabase()
     const { data, error } = await supabase

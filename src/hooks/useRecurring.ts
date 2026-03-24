@@ -39,6 +39,18 @@ export function useRecurring() {
 
   useEffect(() => { fetch() }, [fetch])
 
+  // Real-time subscription — refetch whenever recurring_transactions table changes
+  useEffect(() => {
+    const supabase = getSupabase()
+    const channel = supabase
+      .channel('recurring-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'recurring_transactions' }, () => {
+        fetch()
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [fetch])
+
   // Auto-generate transactions for current month on mount
   useEffect(() => {
     const autoGenerate = async () => {
