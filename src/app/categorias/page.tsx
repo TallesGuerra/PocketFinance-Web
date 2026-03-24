@@ -10,7 +10,7 @@ import { Modal } from '@/components/ui/Modal'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { TransactionType } from '@/types'
 
-const ICONS = ['🍽️', '🚌', '🏥', '🎉', '📚', '🏠', '👕', '🛒', '💼', '💻', '📈', '🎮', '✈️', '🐾', '💊', '⚽', '🎵', '📦']
+const ICONS = ['🍽️', '🚌', '🏥', '🎉', '📚', '🏠', '👕', '🛒', '💼', '💻', '📈', '🎮', '✈️', '🐾', '💊', '⚽', '🎵', '📦', '🐷', '💰', '🏦', '💳', '🪙', '🛍️', '🎓', '🔧', '🍕', '☕']
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#84CC16', '#6B7280']
 
 export default function CategoriasPage() {
