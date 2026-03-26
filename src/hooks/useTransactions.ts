@@ -135,8 +135,8 @@ export function useTransactions(month?: number, year?: number) {
         is_installment: transaction.is_installment ?? false,
         installment_end_date: transaction.installment_end_date ?? null,
         installment_amount: transaction.installment_amount ?? null,
-        paid: false,
-        paid_date: null,
+        paid: transaction.paid ?? false,
+        paid_date: transaction.paid ? (transaction.paid_date ?? new Date().toISOString().split('T')[0]) : null,
       })
       .select('*, category:categories(*)')
       .single()
