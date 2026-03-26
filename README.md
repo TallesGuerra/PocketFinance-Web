@@ -48,7 +48,9 @@
 - **Transações recorrentes** — geração automática mensal
 - **Orçamentos por categoria** — com barra de progresso e alertas
 - **Resumo por categoria** — acordeão com detalhes de cada despesa
-- **Poupanças** — controlo de montantes em múltiplas moedas
+- **Poupanças** — controlo de montantes em múltiplas moedas, com edição e retiradas
+- **Transferir para Poupança** — move valor do saldo do mês diretamente para a poupança
+- **Saldo acumulado** — o saldo restante de cada mês transita automaticamente para o seguinte
 - **Gestão de categorias** — ícones emoji e cores personalizadas
 - **Navegação mensal** — histórico mês a mês
 - **PWA instalável** — funciona como app nativa no iPhone e Android
