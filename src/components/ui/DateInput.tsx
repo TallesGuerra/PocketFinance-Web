@@ -20,10 +20,8 @@ function toISO(display: string): string {
 }
 
 export function DateInput({ value, onChange, min, className }: DateInputProps) {
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove all non-digits
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, '').slice(0, 8)
-    // Auto-insert slashes: DD/MM/YYYY
     let formatted = digits
     if (digits.length > 2) formatted = digits.slice(0, 2) + '/' + digits.slice(2)
     if (digits.length > 4) formatted = formatted.slice(0, 5) + '/' + digits.slice(4)
@@ -42,7 +40,7 @@ export function DateInput({ value, onChange, min, className }: DateInputProps) {
       type="text"
       defaultValue={toDisplay(value)}
       key={value}
-      onInput={handleInput}
+      onChange={handleChange}
       placeholder="dd/mm/aaaa"
       inputMode="numeric"
       className={className}
