@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { DateInput } from '@/components/ui/DateInput'
 import { useCategories } from '@/hooks/useCategories'
 import { Transaction, TransactionType } from '@/types'
 
@@ -159,12 +160,7 @@ export function TransactionForm({ onSubmit, onCancel, initialData, editMode = fa
       {/* Due date */}
       <div>
         <label className={labelCls}>{type === 'expense' ? 'Data de Vencimento' : 'Data'}</label>
-        <input
-          type="date"
-          value={date}
-          onChange={e => setDate(e.target.value)}
-          className={inputCls}
-        />
+        <DateInput value={date} onChange={setDate} className={inputCls} />
       </div>
 
       {/* Installment toggle — expenses only */}
@@ -188,13 +184,7 @@ export function TransactionForm({ onSubmit, onCancel, initialData, editMode = fa
         <div className="space-y-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800">
           <div>
             <label className={labelCls}>Fim do parcelamento</label>
-            <input
-              type="date"
-              value={installmentEndDate ?? ''}
-              onChange={e => setInstallmentEndDate(e.target.value)}
-              min={date}
-              className={inputCls}
-            />
+            <DateInput value={installmentEndDate ?? ''} onChange={setInstallmentEndDate} min={date} className={inputCls} />
           </div>
           <div>
             <label className={labelCls}>Valor por parcela (€)</label>

@@ -38,6 +38,18 @@ export default function HomePage() {
     setIsModalOpen(false)
   }
 
+  const handlePayVirtual = async (t: Parameters<typeof addTransaction>[0] & { id: string; _virtual?: boolean }) => {
+    await addTransaction({
+      description: t.description,
+      amount: t.amount,
+      type: t.type,
+      category_id: t.category_id,
+      date: t.date,
+      notes: t.notes,
+      paid: true,
+    })
+  }
+
   const handleTransfer = async (data: { description: string; amount: number; currency: string; categoryId: string; date: string; notes?: string }) => {
     await addTransaction({
       description: data.description,
@@ -144,7 +156,7 @@ export default function HomePage() {
             <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : view === 'history' ? (
-          <TransactionList transactions={transactions} onDelete={deleteTransaction} onTogglePaid={updatePaidStatus} onUpdate={updateTransaction} viewMonth={month} viewYear={year} />
+          <TransactionList transactions={transactions} onDelete={deleteTransaction} onTogglePaid={updatePaidStatus} onUpdate={updateTransaction} onPayVirtual={handlePayVirtual} viewMonth={month} viewYear={year} />
         ) : (
           <ExpensesByCategory transactions={transactions} />
         )}

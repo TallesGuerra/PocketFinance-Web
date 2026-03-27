@@ -13,6 +13,7 @@ interface TransactionListProps {
   onDelete: (id: string) => Promise<void>
   onTogglePaid?: (id: string, paid: boolean) => Promise<void>
   onUpdate?: (id: string, data: Parameters<typeof TransactionForm>[0]['onSubmit'] extends (d: infer D) => unknown ? D : never) => Promise<void>
+  onPayVirtual?: (t: Transaction) => Promise<void>
   viewMonth?: number
   viewYear?: number
 }
@@ -56,9 +57,10 @@ function getDueDateStatus(t: Transaction, viewDate: string): 'overdue' | 'today'
   return null
 }
 
-export function TransactionList({ transactions, onDelete, onTogglePaid, onUpdate, viewMonth, viewYear }: TransactionListProps) {
+export function TransactionList({ transactions, onDelete, onTogglePaid, onUpdate, onPayVirtual, viewMonth, viewYear }: TransactionListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [togglingId, setTogglingId] = useState<string | null>(null)
+  const [payingVirtualId, setPayingVirtualId] = useState<string | null>(null)
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
 
   const handleDelete = async (id: string) => {
@@ -145,8 +147,24 @@ export function TransactionList({ transactions, onDelete, onTogglePaid, onUpdate
                         </button>
                       )}
 
-                      {/* Virtual recurring indicator */}
-                      {t._virtual && (
+                      {/* Virtual recurring — pay button for expenses, icon for income */}
+                      {t._virtual && t.type === 'expense' && onPayVirtual && (
+                        <button
+                          onClick={async () => {
+                            setPayingVirtualId(t.id)
+                            try { await onPayVirtual(t) } finally { setPayingVirtualId(null) }
+                          }}
+                          disabled={payingVirtualId === t.id}
+                          title="Marcar como pago"
+                          className="w-6 h-6 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center flex-shrink-0 hover:border-emerald-400 transition-colors disabled:opacity-50"
+                        >
+                          {payingVirtualId === t.id
+                            ? <RefreshCcw size={10} className="text-slate-400 animate-spin" />
+                            : <Check size={10} className="text-slate-300 dark:text-slate-600 group-hover:text-emerald-400" />
+                          }
+                        </button>
+                      )}
+                      {t._virtual && t.type === 'income' && (
                         <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
                           <RefreshCcw size={14} className="text-slate-300 dark:text-slate-600" />
                         </div>
