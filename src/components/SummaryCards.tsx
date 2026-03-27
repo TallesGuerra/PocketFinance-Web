@@ -33,10 +33,10 @@ export function SummaryCards({ transactions, previousBalance = 0 }: SummaryCards
         <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-white">
           <div className="flex items-center gap-1.5 mb-1">
             <Wallet size={14} />
-            <span className="text-xs opacity-80">Saldo mês</span>
+            <span className="text-xs opacity-80">Saldo</span>
           </div>
-          <p className={`font-bold text-sm ${monthBalance < 0 ? 'text-red-200' : ''}`}>
-            {formatCurrency(monthBalance)}
+          <p className={`font-bold text-sm ${totalBalance < 0 ? 'text-red-200' : ''}`}>
+            {formatCurrency(totalBalance)}
           </p>
         </div>
       </div>
@@ -51,9 +51,9 @@ export function SummaryCards({ transactions, previousBalance = 0 }: SummaryCards
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-xs opacity-70">Acumulado</span>
-            <span className={`text-xs font-bold ${totalBalance < 0 ? 'text-red-200' : 'text-white'}`}>
-              {formatCurrency(totalBalance)}
+            <span className="text-xs opacity-70">Este mês</span>
+            <span className={`text-xs font-medium ${monthBalance < 0 ? 'text-red-200' : 'text-white/90'}`}>
+              {monthBalance > 0 ? '+' : ''}{formatCurrency(monthBalance)}
             </span>
           </div>
         </div>
