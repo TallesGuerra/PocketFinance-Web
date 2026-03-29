@@ -121,7 +121,7 @@ export function TransactionList({ transactions, onDelete, onTogglePaid, onUpdate
                   return (
                     <div
                       key={t.id}
-                      className={`bg-white dark:bg-slate-900 rounded-2xl p-3 flex items-center gap-2 border transition-opacity ${
+                      className={`bg-white dark:bg-slate-900 rounded-2xl p-3 flex items-center gap-2 border transition-opacity overflow-hidden ${
                         t.paid
                           ? 'opacity-60 border-slate-100 dark:border-slate-800'
                           : dueDateStatus === 'overdue'
@@ -185,32 +185,18 @@ export function TransactionList({ transactions, onDelete, onTogglePaid, onUpdate
                         }`}>
                           {t.description}
                         </p>
-                        <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
-                          <p className="text-xs text-slate-400 dark:text-slate-500">
-                            {t.category?.name ?? 'Sem categoria'}
+                        <p className="text-xs text-slate-400 dark:text-slate-500 truncate mt-0.5">
+                          {t.category?.name ?? 'Sem categoria'}
+                          {t._virtual && ' · Recorrente'}
+                          {installmentLabel && ` · ${installmentLabel}`}
+                          {dueDateStatus === 'overdue' && ' · Vencida'}
+                          {dueDateStatus === 'today' && ' · Vence hoje'}
+                        </p>
+                        {t.paid && t.paid_date && (
+                          <p className="text-xs text-emerald-500 dark:text-emerald-400 truncate">
+                            Pago em {formatDate(t.paid_date)}
                           </p>
-                          {t._virtual && (
-                            <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-full">
-                              Recorrente
-                            </span>
-                          )}
-                          {installmentLabel && (
-                            <span className="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 px-1.5 py-0.5 rounded-full">
-                              {installmentLabel}
-                            </span>
-                          )}
-                          {dueDateStatus === 'overdue' && (
-                            <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-500 px-1.5 py-0.5 rounded-full">Vencida</span>
-                          )}
-                          {dueDateStatus === 'today' && (
-                            <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-full">Vence hoje</span>
-                          )}
-                          {t.paid && t.paid_date && (
-                            <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded-full">
-                              Pago em {formatDate(t.paid_date)}
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-0.5 flex-shrink-0 ml-auto">
