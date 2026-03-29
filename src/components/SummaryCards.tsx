@@ -10,7 +10,8 @@ interface SummaryCardsProps {
 export function SummaryCards({ transactions, previousBalance = 0 }: SummaryCardsProps) {
   const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const expenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-  const monthBalance = income - expenses
+  const paidExpenses = transactions.filter(t => t.type === 'expense' && t.paid).reduce((s, t) => s + t.amount, 0)
+  const monthBalance = income - paidExpenses
   const totalBalance = previousBalance + monthBalance
 
   return (

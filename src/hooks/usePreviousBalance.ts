@@ -18,7 +18,11 @@ export function usePreviousBalance(month: number, year: number) {
     if (isGuest) {
       const balance = MOCK_TRANSACTIONS
         .filter(t => t.date < firstDay && !t.is_installment)
-        .reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0)
+        .reduce((sum, t) => {
+          if (t.type === 'income') return sum + t.amount
+          if (t.type === 'expense' && t.paid) return sum - t.amount
+          return sum
+        }, 0)
       setPreviousBalance(balance)
       return
     }
@@ -26,14 +30,18 @@ export function usePreviousBalance(month: number, year: number) {
     const supabase = getSupabase()
     const { data } = await supabase
       .from('transactions')
-      .select('amount, type')
+      .select('amount, type, paid')
       .lt('date', firstDay)
       .lte('date', today)
       .eq('is_installment', false)
 
     if (!data) return
-    const balance = (data as { amount: number; type: string }[])
-      .reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0)
+    const balance = (data as { amount: number; type: string; paid: boolean }[])
+      .reduce((sum, t) => {
+        if (t.type === 'income') return sum + t.amount
+        if (t.type === 'expense' && t.paid) return sum - t.amount
+        return sum
+      }, 0)
     setPreviousBalance(balance)
   }, [firstDay, today, isGuest])
 
