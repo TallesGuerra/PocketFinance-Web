@@ -121,7 +121,7 @@ export function TransactionList({ transactions, onDelete, onTogglePaid, onUpdate
                   return (
                     <div
                       key={t.id}
-                      className={`bg-white dark:bg-slate-900 rounded-2xl p-3 flex items-center gap-3 border transition-opacity ${
+                      className={`bg-white dark:bg-slate-900 rounded-2xl p-3 flex items-center gap-2 border transition-opacity ${
                         t.paid
                           ? 'opacity-60 border-slate-100 dark:border-slate-800'
                           : dueDateStatus === 'overdue'
@@ -213,8 +213,8 @@ export function TransactionList({ transactions, onDelete, onTogglePaid, onUpdate
                         </div>
                       </div>
 
-                      <div className="text-right flex-shrink-0">
-                        <p className={`text-sm font-semibold ${
+                      <div className="flex items-center gap-0.5 flex-shrink-0 ml-auto">
+                        <p className={`text-sm font-semibold text-right min-w-0 ${
                           t.type === 'income'
                             ? 'text-emerald-600 dark:text-emerald-400'
                             : t.paid
@@ -225,28 +225,28 @@ export function TransactionList({ transactions, onDelete, onTogglePaid, onUpdate
                         }`}>
                           {t.type === 'income' ? '+' : '-'}{formatCurrency(displayAmount)}
                         </p>
+
+                        {/* Edit button — real transactions only */}
+                        {!t._virtual && onUpdate && (
+                          <button
+                            onClick={() => setEditingTransaction(t)}
+                            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          >
+                            <Pencil size={14} className="text-slate-300 dark:text-slate-600 hover:text-slate-500 transition-colors" />
+                          </button>
+                        )}
+
+                        {/* Delete button — real transactions only */}
+                        {!t._virtual && (
+                          <button
+                            onClick={() => handleDelete(t.id)}
+                            disabled={deletingId === t.id}
+                            className="p-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+                          >
+                            <Trash2 size={16} className="text-slate-300 dark:text-slate-700 hover:text-red-400 transition-colors" />
+                          </button>
+                        )}
                       </div>
-
-                      {/* Edit button — real transactions only */}
-                      {!t._virtual && onUpdate && (
-                        <button
-                          onClick={() => setEditingTransaction(t)}
-                          className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                        >
-                          <Pencil size={14} className="text-slate-300 dark:text-slate-600 hover:text-slate-500 transition-colors" />
-                        </button>
-                      )}
-
-                      {/* Delete button — real transactions only */}
-                      {!t._virtual && (
-                        <button
-                          onClick={() => handleDelete(t.id)}
-                          disabled={deletingId === t.id}
-                          className="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
-                        >
-                          <Trash2 size={16} className="text-slate-300 dark:text-slate-700 hover:text-red-400 transition-colors" />
-                        </button>
-                      )}
                     </div>
                   )
                 })}
