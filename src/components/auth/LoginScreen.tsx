@@ -349,7 +349,7 @@ export function LoginScreen({
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center overflow-hidden">
+      <div className="flex-1 flex flex-col items-center justify-center overflow-hidden">
         {status === 'select_profile' && (
           <ProfileSelector onSelect={onSelectProfile} />
         )}
