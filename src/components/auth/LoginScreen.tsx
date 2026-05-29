@@ -325,9 +325,9 @@ export function LoginScreen({
   const showBack = status !== 'select_profile'
 
   return (
-    <div className="h-dvh flex flex-col overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 px-6">
+    <div className="h-dvh flex flex-col overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 px-6" style={{ paddingTop: 'max(2rem, env(safe-area-inset-top))' }}>
       {/* Top bar */}
-      <div className="flex-none h-12 flex items-center" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="flex-none h-10 flex items-center">
         {showBack && (
           <button
             onClick={onBack}
@@ -338,10 +338,10 @@ export function LoginScreen({
         )}
       </div>
 
-      {/* Logo — compact */}
-      <div className="flex-none flex flex-col items-center gap-2 pt-2 pb-5">
+      {/* Logo */}
+      <div className="flex-none flex flex-col items-center gap-2 pt-1 pb-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pocketFinance_icon.svg" alt="PocketFinance" className="w-14 h-14 rounded-2xl shadow-xl" />
+        <img src="/pocketFinance_icon.svg" alt="PocketFinance" className="w-16 h-16 rounded-2xl shadow-xl" />
         <div className="text-center">
           <h1 className="text-lg font-bold text-white tracking-tight">PocketFinance</h1>
           <p className="text-slate-400 text-xs mt-0.5">Finanças Pessoais</p>
@@ -349,7 +349,7 @@ export function LoginScreen({
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center overflow-hidden pt-8">
+      <div className="flex-1 flex flex-col items-center justify-center overflow-hidden">
         {status === 'select_profile' && (
           <ProfileSelector onSelect={onSelectProfile} />
         )}
