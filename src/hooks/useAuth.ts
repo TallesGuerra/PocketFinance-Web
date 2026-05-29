@@ -130,15 +130,17 @@ export function useAuth() {
   }, [selectedProfile])
 
   // Login with PIN — on mobile without biometrics set up, offer to register
-  const loginWithPin = useCallback(async (pin: string): Promise<boolean> => {
+  const loginWithPin = useCallback(async (pin: string): Promise<boolean | 'connection_error'> => {
     if (!selectedProfile) return false
     try {
       const supabase = getSupabase()
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('pin_hash, pin_salt')
         .eq('id', selectedProfile)
         .maybeSingle()
+
+      if (error) return 'connection_error'
       if (!data?.pin_hash || !data?.pin_salt) return false
 
       const hash = await hashPin(pin, data.pin_salt)
@@ -155,7 +157,7 @@ export function useAuth() {
         setStatus('authenticated')
       }
       return true
-    } catch { return false }
+    } catch { return 'connection_error' }
   }, [selectedProfile, webAuthnSupported])
 
   // Login with Face ID / biometric
@@ -246,5 +248,5 @@ export function useAuth() {
     skipBiometric,
     logout,
     backToProfiles,
-  }
+  } as const
 }

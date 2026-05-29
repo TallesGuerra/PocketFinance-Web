@@ -46,11 +46,10 @@ body {
 }
 
 /* Light mode: subtle mesh gradient */
-body:not(.dark body) {
+html:not(.dark) body {
   background-image:
     radial-gradient(ellipse 80% 50% at 20% -10%, rgba(16,185,129,.12) 0%, transparent 60%),
     radial-gradient(ellipse 60% 40% at 80% 110%, rgba(99,102,241,.10) 0%, transparent 60%);
-  background-attachment: fixed;
 }
 
 /* Dark mode: deep gradient */
@@ -58,7 +57,6 @@ body:not(.dark body) {
   background-image:
     radial-gradient(ellipse 80% 50% at 20% -10%, rgba(16,185,129,.08) 0%, transparent 60%),
     radial-gradient(ellipse 60% 40% at 80% 110%, rgba(99,102,241,.06) 0%, transparent 60%);
-  background-attachment: fixed;
 }
 
 /* ─── Utility classes using tokens ─── */

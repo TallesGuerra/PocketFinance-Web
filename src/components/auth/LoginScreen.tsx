@@ -18,7 +18,7 @@ interface LoginScreenProps {
   webAuthnSupported: boolean
   onSelectProfile: (p: Profile) => void
   onSetupPin: (pin: string) => Promise<boolean>
-  onLoginWithPin: (pin: string) => Promise<boolean>
+  onLoginWithPin: (pin: string) => Promise<boolean | 'connection_error'>
   onLoginWithBiometric: () => Promise<boolean>
   onSetupBiometric: () => Promise<boolean>
   onSkipBiometric: () => void
@@ -206,7 +206,7 @@ function LoginPin({
 }: {
   profile: Exclude<Profile, 'guest'>
   hasWebAuthnCred: boolean
-  onSubmit: (pin: string) => Promise<boolean>
+  onSubmit: (pin: string) => Promise<boolean | 'connection_error'>
   onBiometric: () => Promise<boolean>
   onBack: () => void
 }) {
@@ -233,9 +233,11 @@ function LoginPin({
 
   const handleComplete = async (value: string) => {
     setLoading(true)
-    const ok = await onSubmit(value)
-    if (!ok) {
-      setError('PIN incorreto. Tenta novamente.')
+    const result = await onSubmit(value)
+    if (result !== true) {
+      setError(result === 'connection_error'
+        ? 'Sem ligação ao servidor. Verifica o teu internet.'
+        : 'PIN incorreto. Tenta novamente.')
       setLoading(false)
       setPin('')
     }
