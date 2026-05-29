@@ -118,11 +118,11 @@ function ProfileSelector({ onSelect }: { onSelect: (p: Profile) => void }) {
 function SetupPin({
   profile,
   onSubmit,
-  onBack,
+  onGoBack,
 }: {
   profile: Exclude<Profile, 'guest'>
   onSubmit: (pin: string) => Promise<boolean>
-  onBack: () => void
+  onGoBack: () => void
 }) {
   const [phase, setPhase] = useState<'create' | 'confirm'>('create')
   const [firstPin, setFirstPin] = useState('')
@@ -165,12 +165,6 @@ function SetupPin({
 
   return (
     <div className="flex flex-col items-center gap-2 w-full max-w-xs">
-      <button onClick={phase === 'confirm' ? () => { setPhase('create'); setPin(''); setFirstPin('') } : onBack}
-        className="self-start flex items-center gap-1 text-slate-400 hover:text-white transition-colors mb-2"
-      >
-        <ChevronLeft size={18} /> Voltar
-      </button>
-
       <span className="text-5xl mb-1">{meta.emoji}</span>
       <p className="text-white font-semibold text-lg">{meta.label}</p>
 
@@ -190,7 +184,16 @@ function SetupPin({
       {loading ? (
         <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mt-4" />
       ) : (
-        <NumPad onDigit={handleDigit} onBackspace={() => setPin(p => p.slice(0, -1))} />
+        <NumPad
+          onDigit={handleDigit}
+          onBackspace={() => {
+            if (phase === 'confirm' && pin.length === 0) {
+              setPhase('create'); setPin(''); setFirstPin('')
+            } else {
+              setPin(p => p.slice(0, -1))
+            }
+          }}
+        />
       )}
     </div>
   )
@@ -245,10 +248,6 @@ function LoginPin({
 
   return (
     <div className="flex flex-col items-center gap-2 w-full max-w-xs">
-      <button onClick={onBack} className="self-start flex items-center gap-1 text-slate-400 hover:text-white transition-colors mb-2">
-        <ChevronLeft size={18} /> Voltar
-      </button>
-
       <span className="text-5xl mb-1">{meta.emoji}</span>
       <p className="text-white font-semibold text-lg">{meta.label}</p>
 
@@ -345,10 +344,24 @@ export function LoginScreen({
   onSkipBiometric,
   onBack,
 }: LoginScreenProps) {
+  const showBack = status !== 'select_profile'
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 px-6">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 px-6">
+      {/* Top bar — back button */}
+      <div className="h-14 flex items-center">
+        {showBack && (
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors"
+          >
+            <ChevronLeft size={18} /> Voltar
+          </button>
+        )}
+      </div>
+
       {/* Logo */}
-      <div className="mb-10 flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-3 mt-4 mb-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/pocketFinance_icon.svg" alt="PocketFinance" className="w-20 h-20 rounded-3xl shadow-2xl" />
         <div className="text-center">
@@ -357,38 +370,41 @@ export function LoginScreen({
         </div>
       </div>
 
-      {status === 'select_profile' && (
-        <ProfileSelector onSelect={onSelectProfile} />
-      )}
+      {/* Content */}
+      <div className="flex-1 flex flex-col items-center">
+        {status === 'select_profile' && (
+          <ProfileSelector onSelect={onSelectProfile} />
+        )}
 
-      {status === 'setup_pin' && selectedProfile && selectedProfile !== 'guest' && (
-        <SetupPin profile={selectedProfile} onSubmit={onSetupPin} onBack={onBack} />
-      )}
+        {status === 'setup_pin' && selectedProfile && selectedProfile !== 'guest' && (
+          <SetupPin profile={selectedProfile} onSubmit={onSetupPin} onGoBack={onBack} />
+        )}
 
-      {status === 'login' && selectedProfile && selectedProfile !== 'guest' && (
-        <LoginPin
-          profile={selectedProfile}
-          hasWebAuthnCred={hasWebAuthnCred}
-          onSubmit={onLoginWithPin}
-          onBiometric={onLoginWithBiometric}
-          onBack={onBack}
-        />
-      )}
+        {status === 'login' && selectedProfile && selectedProfile !== 'guest' && (
+          <LoginPin
+            profile={selectedProfile}
+            hasWebAuthnCred={hasWebAuthnCred}
+            onSubmit={onLoginWithPin}
+            onBiometric={onLoginWithBiometric}
+            onBack={onBack}
+          />
+        )}
 
-      {status === 'offer_biometric' && selectedProfile && selectedProfile !== 'guest' && (
-        <OfferBiometric
-          profile={selectedProfile}
-          onSetup={onSetupBiometric}
-          onSkip={onSkipBiometric}
-        />
-      )}
+        {status === 'offer_biometric' && selectedProfile && selectedProfile !== 'guest' && (
+          <OfferBiometric
+            profile={selectedProfile}
+            onSetup={onSetupBiometric}
+            onSkip={onSkipBiometric}
+          />
+        )}
 
-      {/* Footer */}
-      {status === 'select_profile' && (
-        <p className="mt-10 text-slate-700 text-xs">
-          {webAuthnSupported ? 'Face ID disponível neste dispositivo' : 'Acesso por PIN'}
-        </p>
-      )}
+        {/* Footer */}
+        {status === 'select_profile' && (
+          <p className="mt-10 text-slate-700 text-xs">
+            {webAuthnSupported ? 'Face ID disponível neste dispositivo' : 'Acesso por PIN'}
+          </p>
+        )}
+      </div>
     </div>
   )
 }
