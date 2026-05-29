@@ -27,14 +27,12 @@ interface LoginScreenProps {
 
 function PinDots({ length }: { length: number }) {
   return (
-    <div className="flex gap-5 my-6">
+    <div className="flex gap-4 my-3">
       {[0, 1, 2, 3].map(i => (
         <div
           key={i}
-          className={`w-4 h-4 rounded-full transition-all duration-150 ${
-            i < length
-              ? 'bg-emerald-400 scale-110'
-              : 'border-2 border-slate-600'
+          className={`w-3.5 h-3.5 rounded-full transition-all duration-150 ${
+            i < length ? 'bg-emerald-400 scale-110' : 'border-2 border-slate-600'
           }`}
         />
       ))}
@@ -44,23 +42,23 @@ function PinDots({ length }: { length: number }) {
 
 function NumPad({ onDigit, onBackspace }: { onDigit: (d: string) => void; onBackspace: () => void }) {
   return (
-    <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
+    <div className="grid grid-cols-3 gap-2 w-full max-w-[252px]">
       {NUMPAD.map((key, idx) => {
         if (key === '') return <div key={idx} />
         if (key === '⌫') return (
           <button
             key={idx}
             onClick={onBackspace}
-            className="w-full aspect-square rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center transition-all"
+            className="h-14 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center transition-all"
           >
-            <Delete size={20} />
+            <Delete size={18} />
           </button>
         )
         return (
           <button
             key={key}
             onClick={() => onDigit(key)}
-            className="w-full aspect-square rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white text-xl font-semibold flex items-center justify-center transition-all"
+            className="h-14 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white text-lg font-semibold flex items-center justify-center transition-all"
           >
             {key}
           </button>
@@ -73,25 +71,21 @@ function NumPad({ onDigit, onBackspace }: { onDigit: (d: string) => void; onBack
 // ── Profile selector ──────────────────────────────────────────────────────────
 function ProfileSelector({ onSelect }: { onSelect: (p: Profile) => void }) {
   return (
-    <div className="flex flex-col items-center gap-8 w-full max-w-xs">
-      <div className="text-center">
-   {/*      <h2 className="text-white text-xl font-semibold">Quem és tu?</h2> */}
-        <p className="text-slate-400 text-sm mt-1">Escolhe o teu perfil para entrar</p>
-      </div>
+    <div className="flex flex-col items-center gap-6 w-full max-w-xs">
+      <p className="text-slate-400 text-sm">Escolhe o teu perfil para entrar</p>
       <div className="flex gap-4 w-full">
         {(Object.entries(PROFILES) as [Profile, { label: string; emoji: string }][]).map(([id, meta]) => (
           <button
             key={id}
             onClick={() => onSelect(id)}
-            className="flex-1 flex flex-col items-center gap-3 py-6 bg-white/10 hover:bg-white/20 active:scale-95 border border-white/10 rounded-3xl transition-all"
+            className="flex-1 flex flex-col items-center gap-3 py-5 bg-white/10 hover:bg-white/20 active:scale-95 border border-white/10 rounded-3xl transition-all"
           >
-            <span className="text-5xl">{meta.emoji}</span>
+            <span className="text-4xl">{meta.emoji}</span>
             <span className="text-white font-semibold">{meta.label}</span>
           </button>
         ))}
       </div>
 
-      {/* Demo / portfolio access */}
       <div className="flex flex-col items-center gap-2 w-full">
         <div className="flex items-center gap-3 w-full">
           <div className="flex-1 h-px bg-white/10" />
@@ -118,11 +112,9 @@ function ProfileSelector({ onSelect }: { onSelect: (p: Profile) => void }) {
 function SetupPin({
   profile,
   onSubmit,
-  onGoBack,
 }: {
   profile: Exclude<Profile, 'guest'>
   onSubmit: (pin: string) => Promise<boolean>
-  onGoBack: () => void
 }) {
   const [phase, setPhase] = useState<'create' | 'confirm'>('create')
   const [firstPin, setFirstPin] = useState('')
@@ -146,7 +138,6 @@ function SetupPin({
       setPin('')
       return
     }
-    // confirm phase
     if (value !== firstPin) {
       setError('PINs não coincidem. Tenta de novo.')
       setPhase('create')
@@ -164,25 +155,19 @@ function SetupPin({
   }
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full max-w-xs">
-      <span className="text-5xl mb-1">{meta.emoji}</span>
-      <p className="text-white font-semibold text-lg">{meta.label}</p>
-
-      <div className="text-center mt-2">
-        <h2 className="text-white font-semibold">
-          {phase === 'create' ? 'Cria o teu PIN' : 'Confirma o PIN'}
-        </h2>
-        <p className="text-slate-400 text-sm mt-1">
-          {phase === 'create' ? 'Escolhe 4 dígitos para aceder à app' : 'Repete o PIN para confirmar'}
-        </p>
-      </div>
+    <div className="flex flex-col items-center gap-1 w-full max-w-xs">
+      <span className="text-3xl">{meta.emoji}</span>
+      <p className="text-white font-semibold">{meta.label}</p>
+      <p className="text-slate-400 text-sm text-center mt-1">
+        {phase === 'create' ? 'Escolhe 4 dígitos' : 'Repete o PIN para confirmar'}
+      </p>
 
       <PinDots length={pin.length} />
 
-      {error && <p className="text-red-400 text-sm text-center -mt-2 mb-1">{error}</p>}
+      {error && <p className="text-red-400 text-xs text-center mb-1">{error}</p>}
 
       {loading ? (
-        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mt-4" />
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mt-2" />
       ) : (
         <NumPad
           onDigit={handleDigit}
@@ -205,7 +190,6 @@ function LoginPin({
   hasWebAuthnCred,
   onSubmit,
   onBiometric,
-  onBack,
 }: {
   profile: Exclude<Profile, 'guest'>
   hasWebAuthnCred: boolean
@@ -218,11 +202,8 @@ function LoginPin({
   const [loading, setLoading] = useState(false)
   const meta = PROFILES[profile]
 
-  // Auto-trigger biometric on first render if credential exists
   useEffect(() => {
-    if (hasWebAuthnCred) {
-      onBiometric()
-    }
+    if (hasWebAuthnCred) onBiometric()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -239,7 +220,7 @@ function LoginPin({
     const result = await onSubmit(value)
     if (result !== true) {
       setError(result === 'connection_error'
-        ? 'Sem ligação ao servidor. Verifica o teu internet.'
+        ? 'Sem ligação ao servidor.'
         : 'PIN incorreto. Tenta novamente.')
       setLoading(false)
       setPin('')
@@ -247,29 +228,26 @@ function LoginPin({
   }
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full max-w-xs">
-      <span className="text-5xl mb-1">{meta.emoji}</span>
-      <p className="text-white font-semibold text-lg">{meta.label}</p>
-
-      <div className="text-center mt-2">
-        <h2 className="text-white font-semibold">Qual é o teu PIN?</h2>
-      </div>
+    <div className="flex flex-col items-center gap-1 w-full max-w-xs">
+      <span className="text-3xl">{meta.emoji}</span>
+      <p className="text-white font-semibold">{meta.label}</p>
+      <p className="text-slate-400 text-sm mt-1">Qual é o teu PIN?</p>
 
       <PinDots length={pin.length} />
 
-      {error && <p className="text-red-400 text-sm text-center -mt-2 mb-1">{error}</p>}
+      {error && <p className="text-red-400 text-xs text-center mb-1">{error}</p>}
 
       {loading ? (
-        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mt-4" />
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mt-2" />
       ) : (
         <>
           <NumPad onDigit={handleDigit} onBackspace={() => setPin(p => p.slice(0, -1))} />
           {hasWebAuthnCred && (
             <button
               onClick={onBiometric}
-              className="mt-4 flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm transition-colors"
+              className="mt-3 flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm transition-colors"
             >
-              <Fingerprint size={18} /> Usar Face ID
+              <Fingerprint size={16} /> Usar Face ID
             </button>
           )}
         </>
@@ -299,13 +277,13 @@ function OfferBiometric({
 
   return (
     <div className="flex flex-col items-center gap-5 w-full max-w-xs text-center">
-      <div className="w-20 h-20 rounded-3xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
-        <Fingerprint size={40} className="text-emerald-400" />
+      <div className="w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+        <Fingerprint size={32} className="text-emerald-400" />
       </div>
       <div>
         <h2 className="text-white font-semibold text-lg">Ativar Face ID?</h2>
-        <p className="text-slate-400 text-sm mt-2 leading-relaxed">
-          Olá {meta.label}! Quer ativar o Face ID para entrar mais rápido da próxima vez?
+        <p className="text-slate-400 text-sm mt-1 leading-relaxed">
+          Olá {meta.label}! Ativar o Face ID para entrar mais rápido?
         </p>
       </div>
       {loading ? (
@@ -314,13 +292,13 @@ function OfferBiometric({
         <div className="flex flex-col gap-3 w-full">
           <button
             onClick={handleSetup}
-            className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white rounded-2xl font-semibold transition-all"
+            className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white rounded-2xl font-semibold transition-all"
           >
             Ativar Face ID
           </button>
           <button
             onClick={onSkip}
-            className="w-full py-3 text-slate-400 hover:text-slate-300 text-sm transition-colors"
+            className="w-full py-2.5 text-slate-400 hover:text-slate-300 text-sm transition-colors"
           >
             Agora não
           </button>
@@ -347,9 +325,9 @@ export function LoginScreen({
   const showBack = status !== 'select_profile'
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 px-6">
-      {/* Top bar — back button */}
-      <div className="h-14 flex items-center">
+    <div className="h-dvh flex flex-col overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 px-6">
+      {/* Top bar */}
+      <div className="flex-none h-12 flex items-center" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         {showBack && (
           <button
             onClick={onBack}
@@ -360,24 +338,24 @@ export function LoginScreen({
         )}
       </div>
 
-      {/* Logo */}
-      <div className="flex flex-col items-center gap-3 mt-4 mb-10">
+      {/* Logo — compact */}
+      <div className="flex-none flex flex-col items-center gap-2 pt-2 pb-5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pocketFinance_icon.svg" alt="PocketFinance" className="w-20 h-20 rounded-3xl shadow-2xl" />
+        <img src="/pocketFinance_icon.svg" alt="PocketFinance" className="w-14 h-14 rounded-2xl shadow-xl" />
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white tracking-tight">PocketFinance</h1>
-          <p className="text-slate-400 text-sm mt-0.5">Finanças Pessoais</p>
+          <h1 className="text-lg font-bold text-white tracking-tight">PocketFinance</h1>
+          <p className="text-slate-400 text-xs mt-0.5">Finanças Pessoais</p>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center">
+      <div className="flex-1 flex flex-col items-center overflow-hidden">
         {status === 'select_profile' && (
           <ProfileSelector onSelect={onSelectProfile} />
         )}
 
         {status === 'setup_pin' && selectedProfile && selectedProfile !== 'guest' && (
-          <SetupPin profile={selectedProfile} onSubmit={onSetupPin} onGoBack={onBack} />
+          <SetupPin profile={selectedProfile} onSubmit={onSetupPin} />
         )}
 
         {status === 'login' && selectedProfile && selectedProfile !== 'guest' && (
@@ -398,9 +376,8 @@ export function LoginScreen({
           />
         )}
 
-        {/* Footer */}
         {status === 'select_profile' && (
-          <p className="mt-10 text-slate-700 text-xs">
+          <p className="mt-8 text-slate-700 text-xs">
             {webAuthnSupported ? 'Face ID disponível neste dispositivo' : 'Acesso por PIN'}
           </p>
         )}
