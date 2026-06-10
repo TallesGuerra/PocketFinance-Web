@@ -110,3 +110,29 @@ INSERT INTO categories (name, icon, color, type) VALUES
   ('Supermercado', '🛒', '#84CC16', 'expense'),
   ('Outros', '📦', '#94A3B8', 'both')
 ON CONFLICT DO NOTHING;
+
+-- ─── Row Level Security ────────────────────────────────────────────────────────
+
+-- profiles: fully locked — all PIN operations go through server-side API routes
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+-- No policies for anon = zero access from the browser
+
+-- categories: read-only for anon (app reads categories everywhere, but never writes via client)
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "categories_anon_select" ON categories FOR SELECT TO anon USING (true);
+
+-- transactions: anon full access (app writes transactions client-side)
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "transactions_anon_all" ON transactions FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- savings: anon full access
+ALTER TABLE savings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "savings_anon_all" ON savings FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- budgets: anon full access
+ALTER TABLE budgets ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "budgets_anon_all" ON budgets FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- recurring_transactions: anon full access
+ALTER TABLE recurring_transactions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "recurring_anon_all" ON recurring_transactions FOR ALL TO anon USING (true) WITH CHECK (true);

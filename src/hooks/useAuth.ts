@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { getSupabase } from '@/lib/supabase'
 
 export type Profile = 'talles' | 'nanda' | 'guest'
 
@@ -49,13 +48,6 @@ function b64ToBuf(b64: string): ArrayBuffer {
   return Uint8Array.from(atob(b64), c => c.charCodeAt(0)).buffer
 }
 
-async function hashPin(pin: string, salt: string): Promise<string> {
-  const enc = new TextEncoder()
-  const data = enc.encode(pin + salt)
-  const hash = await crypto.subtle.digest('SHA-256', data)
-  return bufToB64(hash)
-}
-
 function isTouchDevice(): boolean {
   return typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0
 }
@@ -96,14 +88,14 @@ export function useAuth() {
     setHasWebAuthnCred(hasCred)
 
     try {
-      const supabase = getSupabase()
-      const { data } = await supabase
-        .from('profiles')
-        .select('pin_hash')
-        .eq('id', profile)
-        .maybeSingle()
-
-      setStatus(!data?.pin_hash ? 'setup_pin' : 'login')
+      const res = await fetch('/api/auth/check-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile }),
+      })
+      if (!res.ok) { setStatus('login'); return }
+      const { hasPin } = await res.json()
+      setStatus(hasPin ? 'login' : 'setup_pin')
     } catch {
       setStatus('login')
     }
@@ -113,15 +105,13 @@ export function useAuth() {
   const setupPin = useCallback(async (pin: string): Promise<boolean> => {
     if (!selectedProfile) return false
     try {
-      const salt = bufToB64(crypto.getRandomValues(new Uint8Array(16)).buffer)
-      const pin_hash = await hashPin(pin, salt)
       const meta = PROFILE_META[selectedProfile]
-      const supabase = getSupabase()
-      const { error } = await supabase.from('profiles').upsert(
-        { id: selectedProfile, display_name: meta.label, avatar_emoji: meta.emoji, pin_hash, pin_salt: salt },
-        { onConflict: 'id' }
-      )
-      if (error) return false
+      const res = await fetch('/api/auth/setup-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile: selectedProfile, pin, displayName: meta.label, emoji: meta.emoji }),
+      })
+      if (!res.ok) return false
       startSession(selectedProfile)
       setActiveProfile(selectedProfile)
       setStatus('authenticated')
@@ -133,18 +123,13 @@ export function useAuth() {
   const loginWithPin = useCallback(async (pin: string): Promise<boolean | 'connection_error'> => {
     if (!selectedProfile) return false
     try {
-      const supabase = getSupabase()
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('pin_hash, pin_salt')
-        .eq('id', selectedProfile)
-        .maybeSingle()
-
-      if (error) return 'connection_error'
-      if (!data?.pin_hash || !data?.pin_salt) return false
-
-      const hash = await hashPin(pin, data.pin_salt)
-      if (hash !== data.pin_hash) return false
+      const res = await fetch('/api/auth/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile: selectedProfile, pin }),
+      })
+      if (res.status === 503 || res.status === 500) return 'connection_error'
+      if (!res.ok) return false
 
       startSession(selectedProfile)
       setActiveProfile(selectedProfile)
